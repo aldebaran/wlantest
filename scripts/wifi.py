@@ -5,19 +5,23 @@
 #
 
 WORK_DIR = "/home/maxence/src/wlantest"
-MODES = ["wpa","wpa2"]
 
 import subprocess
+import os
 from time import sleep
 
 def launch_hostap(conf):
-    cmd = ["hostapd", WORK_DIR+"/hostap/"+conf+".conf", "-d"]
+    cmd = ["hostapd", WORK_DIR+"/hostap/"+conf, "-d"]
     proc = subprocess.Popen(cmd)
     sleep(3)
 
 if (__name__ == "__main__"):
-    print ("Initializing ...")
+    # On liste les differentes conf hostap
+    print ("Reading hostap directory ...")
+    MODES = os.listdir(WORK_DIR+"/hostap/") 
+    print MODES
 
+    # Boucle principale
     for mode in MODES:
         launch_hostap(mode)
         print("Hostap running mode "+mode+"!")
