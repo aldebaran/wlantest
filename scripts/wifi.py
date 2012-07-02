@@ -5,6 +5,7 @@
 #
 
 WORK_DIR = "/home/maxence/src/wlantest"
+IP_AP = "192.168.3.1"
 
 import subprocess
 import os,signal
@@ -12,8 +13,14 @@ from time import sleep
 
 def scan_wifi():
     cmd = ["/home/maxence/src/connman/test/test-connman", "scan", "wifi"]
-    proc = subprocess.Popen(cmd2)
+    proc = subprocess.Popen(cmd)
     proc.wait()
+
+def ping_ap():
+    cmd = ["ping", "-c", "1", IP_AP]
+    proc = subprocess.Popen(cmd)
+    proc.wait()
+    return proc.returncode
 
 def mode_process(conf):
     # On lance hostap
@@ -29,7 +36,11 @@ def mode_process(conf):
     # On laisse à connman le temps de se connecter
     sleep(3)
 
-    # TODO : Tester la connectivité
+    # On teste la connectivité
+    if not ping_ap():
+        print ("Sucess !")
+    else:
+        print ("Failure !")
 
     # On tue hostap
     os.kill(proc.pid, signal.SIGTERM)
