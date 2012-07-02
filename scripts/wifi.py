@@ -15,11 +15,15 @@ def mode_process(conf):
     cmd = ["hostapd", WORK_DIR+"/hostap/"+conf, "-d"]
     proc = subprocess.Popen(cmd)
     sleep(3)
-
-    # TODO : Se connecter à l'AP avec connman
+    
+    # On scan les réseaux, connman se connecte automatiquement
+    cmd2 = ["connman", "scan", "wifi"]
+    proc2 = subprocess.Popen(cmd2)
+    sleep(3)
 
     # On tue hostap
     os.kill(proc.pid, signal.SIGTERM)
+    sleep(3)
 
 if (__name__ == "__main__"):
     # On liste les differentes conf hostap
