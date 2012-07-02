@@ -1,1 +1,4 @@
 repository for automatic wireless tests
+
+    -To add a configuration, copy your hostapd.conf to hostap/
+    and add corresponding section in connman/rezo.config
