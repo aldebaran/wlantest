@@ -17,12 +17,15 @@ def mode_process(conf):
     sleep(3)
     print("Hostap running mode "+mode+"!")
     
-    # On scan les réseaux, connman se connecte automatiquement
+    # On scan les réseaux
     print("Scanning wifi ...")
     cmd2 = ["/home/maxence/src/connman/test/test-connman", "scan", "wifi"]
     proc2 = subprocess.Popen(cmd2)
+    proc2.wait()
+
+    # On laisse à connman le temps de se connecter
     sleep(3)
-    
+
     # TODO : Tester la connectivité
 
     # On tue hostap
