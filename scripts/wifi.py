@@ -10,6 +10,11 @@ import subprocess
 import os,signal
 from time import sleep
 
+def scan_wifi():
+    cmd = ["/home/maxence/src/connman/test/test-connman", "scan", "wifi"]
+    proc = subprocess.Popen(cmd2)
+    proc.wait()
+
 def mode_process(conf):
     # On lance hostap
     cmd = ["hostapd", WORK_DIR+"/hostap/"+conf, "-d"]
@@ -19,9 +24,7 @@ def mode_process(conf):
     
     # On scan les réseaux
     print("Scanning wifi ...")
-    cmd2 = ["/home/maxence/src/connman/test/test-connman", "scan", "wifi"]
-    proc2 = subprocess.Popen(cmd2)
-    proc2.wait()
+    scan_wifi()
 
     # On laisse à connman le temps de se connecter
     sleep(3)
