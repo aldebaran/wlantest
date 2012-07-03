@@ -1,12 +1,10 @@
 #!/usr/bin/python
 ##
 ## ConnmanClient.py
-## Login : <maxence@mviallon-de>
-## Started on  Tue Jul  3 10:39:14 2012 maxence
-## $Id$
 ##
 ## Author(s):
-##  - maxence <>
+##  - Maxence VIALLON <mviallon@aldebaran-robotics.com>
+##
 
 import dbus
 

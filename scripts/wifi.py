@@ -1,8 +1,12 @@
 #!/usr/bin/python
-# coding: utf8
-#
-# Script de test wifi
-#
+##
+## wifi.py
+##
+## Script for automatic wireless testing using hostapd
+##
+## Author(s):
+##  - Maxence VIALLON <mviallon@aldebaran-robotics.com>
+##
 
 WORK_DIR = "/home/maxence/src/wlantest"
 
@@ -13,34 +17,30 @@ from ConnmanClient import ConnmanClient
 from Hostapd import Hostapd
 
 def mode_process(conf):
-    # On lance hostap
     hostapd.reload(conf)
     print("Hostap running mode "+mode+"!")
     
-    # On scan les réseaux
     print("Scanning wifi ...")
     connman.scan()
     
-    # On laisse à connman le temps de se connecter
+    # Delay for connman to autoconnect
     sleep(5)
     
-    # On teste la connectivité
     connman.serviceisConnected()
     
 if (__name__ == "__main__"):
     
-    # On liste les differentes conf hostap
+    # Listing of hostapd configuration files
     print ("Reading hostap directory ...")
     MODES = os.listdir(WORK_DIR+"/hostap/") 
     print MODES
     
-    # TODO : Lancer le dhcp
+    # TODO : Start dhcp
     
-    # Création des objets
     connman = ConnmanClient()
     hostapd = Hostapd()
     
-    # Boucle principale
+    # Main loop
     for mode in MODES:
         mode_process(mode)
 
