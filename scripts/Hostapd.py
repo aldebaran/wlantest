@@ -36,3 +36,7 @@ class Hostapd:
         # Reloading hostap
         os.kill(self.proc.pid, signal.SIGHUP)
         sleep(1)
+    
+    def kill(self):
+        os.kill(self.proc.pid, signal.SIGTERM)
+
