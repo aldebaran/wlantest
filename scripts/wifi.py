@@ -8,7 +8,7 @@
 ##  - Maxence VIALLON <mviallon@aldebaran-robotics.com>
 ##
 
-WORK_DIR = "/home/maxence/src/wlantest"
+CONF_DIR = "/home/maxence/src/wlantest/hostap"
 
 import os
 from time import sleep
@@ -32,7 +32,7 @@ if (__name__ == "__main__"):
     
     # Listing of hostapd configuration files
     print ("Reading hostap directory ...")
-    MODES = os.listdir(WORK_DIR+"/hostap/") 
+    MODES = os.listdir(CONF_DIR) 
     print MODES
     
     # TODO : Start dhcp
