@@ -14,20 +14,28 @@ class ConnmanClient:
     """
     Class to get information from ConnMan
     """
-    bus = None
-    manager = None
-    technology = None
 
     def __init__(self):
-        bus = dbus.Systembus()
-        manager = dbus.Interface(bus.get_object("net.connman", "/"),"net.connman.Manager")
-        technology = dbus.Interface(bus.get_object("net.connman", \
+        self.bus = dbus.SystemBus()
+        self.manager = dbus.Interface(self.bus.get_object("net.connman", "/"), \
+                "net.connman.Manager")
+        self.technology = dbus.Interface(self.bus.get_object("net.connman", \
                 "/net/connman/technology/wifi"), "net.connman.Technology")
 
     def scan(self):
         technology.Scan()
 
-    def serviceisConnected(self, serviceId):
+    def serviceisConnected(self, serviceId=None):
+        for path,properties in self.manager.GetServices(): 
+            if properties["Type"] == "wifi":
+                if properties["State"] in ("ready"):
+                    print "Success !"
+                else:
+                    print "Fail"
+
+    def getServiceId(self, serviceName, security):
         pass
-    def getServiceId(self, serviceName, security)
-        pass
+
+if (__name__ == "__main__"):
+    myConn = ConnmanClient()
+    myConn.serviceisConnected()
