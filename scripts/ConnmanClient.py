@@ -23,12 +23,12 @@ class ConnmanClient:
                 "/net/connman/technology/wifi"), "net.connman.Technology")
 
     def scan(self):
-        technology.Scan()
+        self.technology.Scan()
 
     def serviceisConnected(self, serviceId=None):
         for path,properties in self.manager.GetServices(): 
             if properties["Type"] == "wifi":
-                if properties["State"] in ("ready"):
+                if properties["State"] in ("ready","online"):
                     print "Success !"
                 else:
                     print "Fail"
