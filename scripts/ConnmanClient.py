@@ -24,7 +24,7 @@ class ConnmanClient:
         technology = dbus.Interface(bus.get_object("net.connman", \
                 "/net/connman/technology/wifi"), "net.connman.Technology")
 
-    def scan(self, technology):
+    def scan(self):
         technology.Scan()
 
     def serviceisConnected(self, serviceId):
