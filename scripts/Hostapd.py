@@ -25,7 +25,7 @@ class Hostapd:
     """
 
     def __init__(self):
-        self.cmd = ["hostapd", TEMP_FILE, "-d"]
+        self.cmd = ["hostapd", TEMP_FILE]
         self.proc = subprocess.Popen(self.cmd)
         sleep(3)
 
