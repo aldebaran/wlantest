@@ -39,4 +39,4 @@ class Hostapd:
     
     def kill(self):
         os.kill(self.proc.pid, signal.SIGTERM)
-
+        sleep(1)
