@@ -8,9 +8,11 @@
 ## Author(s):
 ##  - maxence <>
 
-HOSTAP_DIR = "/usr/local/bin"
-CONF_DIR = "/usr/share/wlantest/hostap"
-TEMP_FILE = "/home/nao/hostapd.conf"
+#HOSTAP_DIR = "/usr/local/bin"
+#CONF_DIR = "/usr/share/wlantest/hostap"
+CONF_DIR = "/home/maxence/src/wlantest/hostap"
+#TEMP_FILE = "/home/nao/hostapd.conf"
+TEMP_FILE = "/home/maxence/src/hostap/hostapd/hostapd.conf"
 
 import subprocess
 import shutil
@@ -24,7 +26,7 @@ class Hostapd:
 
     def __init__(self):
         self.cmd = ["hostapd", TEMP_FILE, "-d"]
-        self.proc = subprocess.Popen(cmd)
+        self.proc = subprocess.Popen(self.cmd)
         sleep(3)
 
     def reload(self, conf):
