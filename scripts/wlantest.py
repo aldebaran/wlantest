@@ -30,7 +30,8 @@ class wlantest:
         # Delay for connman to autoconnect
         sleep(5)
          
-        if self.connman.serviceisConnected("rezowpa2"):
+        ServiceId = self.connman.getServiceId("wpa2rezo")
+        if self.connman.serviceisConnected(ServiceId):
             print "Success"
         else:
             print "Fail"
