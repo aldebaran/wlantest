@@ -8,42 +8,43 @@
 ##  - Maxence VIALLON <mviallon@aldebaran-robotics.com>
 ##
 
-CONF_DIR = "/home/maxence/src/wlantest/hostap"
-
 import os
 from time import sleep
 
 from ConnmanClient import ConnmanClient
 from Hostapd import Hostapd
 
-def mode_process(conf):
-    hostapd.reload(conf)
-    print("Hostap running mode "+mode+"!")
-    
-    print("Scanning wifi ...")
-    connman.scan()
-    
-    # Delay for connman to autoconnect
-    sleep(5)
-    
-    connman.serviceisConnected()
-    
+class wlantest:
+
+    def __init__(self):
+        self.connman = ConnmanClient()
+        self.hostapd = Hostapd()
+
+    def wpa2():
+        self.hostapd.reload("wpa2.conf")
+        print("Hostap running mode wpa2")
+        
+        print("Scanning wifi ...")
+        self.connman.scan()
+         
+        # Delay for connman to autoconnect
+        sleep(5)
+         
+        if self.connman.serviceisConnected("rezowpa2"):
+            print "Success"
+        else:
+            print "Fail"
+
+    def stop():
+        self.hostapd.kill()
+
 if (__name__ == "__main__"):
-    
-    # Listing of hostapd configuration files
-    print ("Reading hostap directory ...")
-    MODES = os.listdir(CONF_DIR) 
-    print MODES
     
     # TODO : Start dhcp
     
-    connman = ConnmanClient()
-    hostapd = Hostapd()
+    wlantest = wlantest()
     
-    # Main loop
-    for mode in MODES:
-        mode_process(mode)
+    wlantest.wpa2()
 
-    # Killing Hostapd
-    hostapd.kill()
+    wlantest.stop()
 
