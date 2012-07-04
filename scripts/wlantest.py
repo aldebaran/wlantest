@@ -1,6 +1,6 @@
 #!/usr/bin/python
 ##
-## wifi.py
+## wlantest.py
 ##
 ## Script for automatic wireless testing using hostapd
 ##
@@ -20,7 +20,7 @@ class wlantest:
         self.connman = ConnmanClient()
         self.hostapd = Hostapd()
 
-    def wpa2():
+    def wpa2(self):
         self.hostapd.reload("wpa2.conf")
         print("Hostap running mode wpa2")
         
@@ -35,7 +35,7 @@ class wlantest:
         else:
             print "Fail"
 
-    def stop():
+    def stop(self):
         self.hostapd.kill()
 
 if (__name__ == "__main__"):
