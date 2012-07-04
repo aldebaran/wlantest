@@ -23,17 +23,18 @@ class ConnmanClient:
     def scan(self):
         self.technology.Scan()
 
-    def serviceisConnected(self, serviceId=None):
+    def serviceisConnected(self, Name):
         for path,properties in self.manager.GetServices(): 
-            if properties["Type"] == "wifi":
-                if properties["State"] in ("ready","online"):
-                    print "Success !"
-                else:
-                    print "Fail"
+            if "Name" in properties.keys():
+                if properties["Name"] == Name:
+                    if properties["State"] in ("ready","online"):
+                        print "Successfuly connected to "+Name
+                    else:
+                        print "[!] Failed to connect to "+Name
 
     def getServiceId(self, serviceName, security):
         pass
 
 if (__name__ == "__main__"):
     myConn = ConnmanClient()
-    myConn.serviceisConnected()
+    myConn.serviceisConnected("FreeWifi")
