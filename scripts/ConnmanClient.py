@@ -23,21 +23,25 @@ class ConnmanClient:
     def scan(self):
         self.technology.Scan()
 
-    def serviceisConnected(self, Name):
+    def serviceisConnected(self, ServiceId):
         for path,properties in self.manager.GetServices(): 
-            if "Name" in properties.keys():
-                if properties["Name"] == Name:
+            if path == "/net/connman/service/" + ServiceId:
                     if properties["State"] in ("ready","online"):
                         return True
                     else:
                         return False
 
-    def getServiceId(self, serviceName, security):
-        pass
+    def getServiceId(self, ServiceName):
+        for path,properties in self.manager.GetServices(): 
+            if properties.get("Name", "") == ServiceName:
+                ServiceId = path[path.rfind("/") + 1:]
+                return ServiceId
 
 if (__name__ == "__main__"):
     myConn = ConnmanClient()
-    if myConn.serviceisConnected("Freewifi"):
-        print "Sucess"
+    ServiceId = myConn.getServiceId("FreeWifi")
+    print ServiceId
+    if myConn.serviceisConnected(ServiceId):
+        print "Success"
     else:
         print "Fail"
