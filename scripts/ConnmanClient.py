@@ -28,13 +28,16 @@ class ConnmanClient:
             if "Name" in properties.keys():
                 if properties["Name"] == Name:
                     if properties["State"] in ("ready","online"):
-                        print "Successfuly connected to "+Name
+                        return True
                     else:
-                        print "[!] Failed to connect to "+Name
+                        return False
 
     def getServiceId(self, serviceName, security):
         pass
 
 if (__name__ == "__main__"):
     myConn = ConnmanClient()
-    myConn.serviceisConnected("FreeWifi")
+    if myConn.serviceisConnected("Freewifi"):
+        print "Sucess"
+    else:
+        print "Fail"
