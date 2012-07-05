@@ -28,10 +28,10 @@ class wlantest:
         print("Scanning wifi ...")
         self.connman.scan()
          
-        # Delay for connman to autoconnect
-        sleep(5)
-         
         ServiceId = self.connman.getServiceId("wpa2rezo")
+
+        self.connman.connect(ServiceId)
+         
         if self.connman.serviceisConnected(ServiceId):
             print "Success"
         else:

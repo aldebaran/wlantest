@@ -117,6 +117,18 @@ class ConnmanClient:
     def scan(self):
         self.technology.Scan()
 
+    def connect(self, ServiceId):
+        
+        path = "/net/connman/service/" + ServiceId
+
+        service = dbus.Interface(self.bus.get_object("net.connman", path),
+		    				"net.connman.Service")
+
+        try:
+            service.Connect(timeout=60000)
+        except dbus.DBusException, error:
+            print "%s: %s" % (error._dbus_error_name, error.message)
+
     def serviceisConnected(self, ServiceId):
         for path,properties in self.manager.GetServices(): 
             if path == "/net/connman/service/" + ServiceId:
