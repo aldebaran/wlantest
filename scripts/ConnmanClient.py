@@ -6,7 +6,11 @@
 ##  - Maxence VIALLON <mviallon@aldebaran-robotics.com>
 ##
 
+import gobject
+
 import dbus
+import dbus.service
+import dbus.mainloop.glib
 import threading
 
 class AgentThread (threading.Thread):
@@ -14,11 +18,14 @@ class AgentThread (threading.Thread):
     def __init__(self, daemon):
         threading.Thread.__init__(self)
         self.daemon = daemon
-
+        
+        gobject.threads_init()
+        dbus.mainloop.glib.threads_init()
+        dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
 
     def run(self):
-        # TODO : Agent main loop
-        pass
+        mainloop = gobject.MainLoop()
+        mainloop.run()
 
 class ConnmanClient:
     """
@@ -26,14 +33,18 @@ class ConnmanClient:
     """
 
     def __init__(self):
+
+        self.agent = AgentThread(True)
+
         self.bus = dbus.SystemBus()
         self.manager = dbus.Interface(self.bus.get_object("net.connman", "/"), \
                 "net.connman.Manager")
         self.technology = dbus.Interface(self.bus.get_object("net.connman", \
                 "/net/connman/technology/wifi"), "net.connman.Technology")
 
-        self.agent = AgentThread(True)
-
+        # Initializing Agent
+        path = "/test/agent"
+        self.manager.RegisterAgent(path)
         self.agent.start()
 
     def scan(self):
