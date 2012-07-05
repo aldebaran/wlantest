@@ -13,6 +13,73 @@ import dbus.service
 import dbus.mainloop.glib
 import threading
 
+class Agent(dbus.service.Object):
+	name = None
+	ssid = None
+	identity = None
+	passphrase = None
+	wpspin = None
+	username = None
+	password = None
+
+	@dbus.service.method("net.connman.Agent",
+					in_signature='', out_signature='')
+	def Release(self):
+		print("Release")
+		mainloop.quit()
+
+	def input_passphrase(self):
+		response = {}
+
+		if self.identity:
+			response["Identity"] = self.identity
+		if self.passphrase:
+			response["Passphrase"] = self.passphrase
+		if self.wpspin:
+			response["WPS"] = self.wpspin
+
+		return response
+
+	def input_username(self):
+		response = {}
+
+		if self.username:
+			response["Username"] = self.username
+		if self.password:
+			response["Password"] = self.password
+
+		return response
+
+	def input_hidden(self):
+		response = {}
+
+		if self.name:
+			response["Name"] = self.name
+		if self.ssid:
+			response["SSID"] = self.ssid
+
+		return response
+
+	@dbus.service.method("net.connman.Agent",
+					in_signature='oa{sv}',
+					out_signature='a{sv}')
+	def RequestInput(self, path, fields):
+		response = {}
+
+		if fields.has_key("Name"):
+			response.update(self.input_hidden())
+		if fields.has_key("Passphrase"):
+			response.update(self.input_passphrase())
+		if fields.has_key("Username"):
+			response.update(self.input_username())
+
+		return response
+
+	@dbus.service.method("net.connman.Agent",
+					in_signature='', out_signature='')
+	def Cancel(self):
+		print "Cancel"
+
 class AgentThread (threading.Thread):
 
     def __init__(self, daemon):
@@ -44,6 +111,7 @@ class ConnmanClient:
 
         # Initializing Agent
         path = "/test/agent"
+        object = Agent(self.bus,path)
         self.manager.RegisterAgent(path)
         self.agent.start()
 
