@@ -39,6 +39,9 @@ class wlantest:
         else:
             print "Fail"
 
+        print("Disconnecting ...")
+        self.connman.disconnect(ServiceId)
+
     def stop(self):
         self.hostapd.kill()
 
