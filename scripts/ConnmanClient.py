@@ -25,7 +25,6 @@ class Agent(dbus.service.Object):
 	@dbus.service.method("net.connman.Agent",
 					in_signature='', out_signature='')
 	def Release(self):
-		print("Release")
 		mainloop.quit()
 
 	def input_passphrase(self):
@@ -74,11 +73,11 @@ class Agent(dbus.service.Object):
 			response.update(self.input_username())
 
 		return response
-
+    
 	@dbus.service.method("net.connman.Agent",
 					in_signature='', out_signature='')
 	def Cancel(self):
-		print "Cancel"
+		pass
 
 class AgentThread (threading.Thread):
 
@@ -111,7 +110,7 @@ class ConnmanClient:
 
         # Initializing Agent
         path = "/test/agent"
-        object = Agent(self.bus,path)
+        self.object = Agent(self.bus,path)
         self.manager.RegisterAgent(path)
         self.agent.start()
 
@@ -131,6 +130,9 @@ class ConnmanClient:
             if properties.get("Name", "") == ServiceName:
                 ServiceId = path[path.rfind("/") + 1:]
                 return ServiceId
+
+    def setPassphrase(self, Passphrase):
+        self.object.passphrase = Passphrase
 
 if (__name__ == "__main__"):
     myConn = ConnmanClient()

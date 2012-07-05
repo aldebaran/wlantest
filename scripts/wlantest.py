@@ -21,6 +21,7 @@ class wlantest:
         self.hostapd = Hostapd()
     
     def wpa2(self):
+        self.connman.setPassphrase("12345678")
         self.hostapd.reload("wpa2.conf")
         print("Hostap running mode wpa2")
         
