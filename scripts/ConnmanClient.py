@@ -7,6 +7,18 @@
 ##
 
 import dbus
+import threading
+
+class AgentThread (threading.Thread):
+
+    def __init__(self, daemon):
+        threading.Thread.__init__(self)
+        self.daemon = daemon
+
+
+    def run(self):
+        # TODO : Agent main loop
+        pass
 
 class ConnmanClient:
     """
@@ -19,6 +31,10 @@ class ConnmanClient:
                 "net.connman.Manager")
         self.technology = dbus.Interface(self.bus.get_object("net.connman", \
                 "/net/connman/technology/wifi"), "net.connman.Technology")
+
+        self.agent = AgentThread(True)
+
+        self.agent.start()
 
     def scan(self):
         self.technology.Scan()

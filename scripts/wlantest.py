@@ -9,31 +9,16 @@
 ##
 
 import os
-import threading
 from time import sleep
 
 from ConnmanClient import ConnmanClient
 from Hostapd import Hostapd
-
-class AgentThread (threading.Thread):
-
-    def __init__(self, daemon):
-        threading.Thread.__init__(self)
-        self.daemon = daemon
-
-
-    def run(self):
-        # TODO : Agent main loop
-        pass
 
 class wlantest:
 
     def __init__(self):
         self.connman = ConnmanClient()
         self.hostapd = Hostapd()
-        self.agent = AgentThread(True)
-
-        self.agent.start()
     
     def wpa2(self):
         self.hostapd.reload("wpa2.conf")
