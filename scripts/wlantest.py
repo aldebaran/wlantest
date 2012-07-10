@@ -9,7 +9,6 @@
 ##
 
 import os
-from time import sleep
 
 from ConnmanClient import ConnmanClient
 from Hostapd import Hostapd
@@ -32,7 +31,7 @@ class wlantest:
         print("Connecting to network ...")
         self.connman.setPassphrase("12345678")
         self.connman.connect(ServiceId)
-         
+    
         print("Checking network status ...")
         if self.connman.serviceisConnected(ServiceId):
             print "Success !"
@@ -48,10 +47,10 @@ class wlantest:
 if (__name__ == "__main__"):
     
     # TODO : Start dhcp
-    
+
     wlantest = wlantest()
 
     wlantest.wpa2()
 
     wlantest.stop()
-
+    
