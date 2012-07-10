@@ -25,7 +25,7 @@ class Agent(dbus.service.Object):
 	@dbus.service.method("net.connman.Agent",
 					in_signature='', out_signature='')
 	def Release(self):
-		mainloop.quit()
+		loop.quit()
 
 	def input_passphrase(self):
 		response = {}
@@ -72,6 +72,7 @@ class Agent(dbus.service.Object):
 		if fields.has_key("Username"):
 			response.update(self.input_username())
 
+		print response
 		return response
     
 	@dbus.service.method("net.connman.Agent",
@@ -80,18 +81,39 @@ class Agent(dbus.service.Object):
 		pass
 
 class AgentThread (threading.Thread):
+    """
+    Thread dedicated to run the agent
+    """
 
     def __init__(self, daemon):
         threading.Thread.__init__(self)
         self.daemon = daemon
-        
-        gobject.threads_init()
-        dbus.mainloop.glib.threads_init()
-        dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
 
     def run(self):
+        gobject.threads_init()
+        dbus.mainloop.glib.threads_init()
+        dbus_loop = dbus.mainloop.glib.DBusGMainLoop()
+    
+        bus = dbus.SystemBus(mainloop=dbus_loop)
+        manager = dbus.Interface(bus.get_object('net.connman', "/"),
+                                'net.connman.Manager')
+        
+        path = "/test/agent"
+        self.object = Agent(bus, path)
+        
+        manager.RegisterAgent(path)
+        
         mainloop = gobject.MainLoop()
         mainloop.run()
+    
+#def handle_connect_error(error):
+#    loop.quit()
+#    print "Connect returns an error"
+#    print error
+#
+#def handle_connect_reply():
+#    loop.quit()
+#    print "Connect callback"
 
 class ConnmanClient:
     """
@@ -100,25 +122,21 @@ class ConnmanClient:
 
     def __init__(self):
 
+        # Init AgentThread
         self.agent = AgentThread(True)
+        self.agent.start()
 
+        # Setting up bus
         self.bus = dbus.SystemBus()
         self.manager = dbus.Interface(self.bus.get_object("net.connman", "/"), \
                 "net.connman.Manager")
         self.technology = dbus.Interface(self.bus.get_object("net.connman", \
                 "/net/connman/technology/wifi"), "net.connman.Technology")
 
-        # Initializing Agent
-        path = "/test/agent"
-        self.object = Agent(self.bus,path)
-        self.manager.RegisterAgent(path)
-        self.agent.start()
-
     def scan(self):
         self.technology.Scan()
 
     def connect(self, ServiceId):
-        
         path = "/net/connman/service/" + ServiceId
 
         service = dbus.Interface(self.bus.get_object("net.connman", path),
@@ -126,6 +144,11 @@ class ConnmanClient:
 
         try:
             service.Connect(timeout=60000)
+#            service.Connect(timeout=60000, 
+#                            reply_handler=handle_connect_reply,
+#                            error_handler=handle_connect_error)
+#            loop.run()
+
         except dbus.DBusException, error:
             print "%s: %s" % (error._dbus_error_name, error.message)
 
@@ -156,12 +179,14 @@ class ConnmanClient:
                 return ServiceId
 
     def setPassphrase(self, Passphrase):
-        self.object.passphrase = Passphrase
+        self.agent.object.passphrase = Passphrase
 
 if (__name__ == "__main__"):
     myConn = ConnmanClient()
-    ServiceId = myConn.getServiceId("FreeWifi")
+    myConn.setPassphrase("12345678")
+    ServiceId = myConn.getServiceId("wpa2rezo")
     print ServiceId
+    myConn.connect(ServiceId)
     if myConn.serviceisConnected(ServiceId):
         print "Success"
     else:
