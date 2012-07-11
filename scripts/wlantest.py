@@ -22,29 +22,17 @@ class wlantest:
     def wpa2(self, ssid, passphrase):
         self.hostapd.wpa2(ssid, passphrase)
         print("Hostap running mode wpa2")
+
+        self.testpsk(ssid, passphrase)
         
-        print("Scanning wifi ...")
-        self.connman.scan()
-
-        print("Connecting to network ...")
-        ServiceId = self.connman.getServiceId(ssid)
-
-        self.connman.setPassphrase(passphrase)
-        self.connman.connect(ServiceId)
-    
-        print("Checking network status ...")
-        if self.connman.serviceisConnected(ServiceId):
-            print "Success !"
-        else:
-            print "Fail"
-
-        print("Disconnecting ...")
-        self.connman.disconnect(ServiceId)
-
     def wpa(self, ssid, passphrase):
         self.hostapd.wpa(ssid, passphrase)
         print("Hostap running mode wpa")
-        
+
+        self.testpsk(ssid, passphrase)
+
+    def testpsk(self, ssid, passphrase):
+
         print("Scanning wifi ...")
         self.connman.scan()
 
