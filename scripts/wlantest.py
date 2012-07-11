@@ -19,17 +19,17 @@ class wlantest:
         self.connman = ConnmanClient()
         self.hostapd = Hostapd()
     
-    def wpa2(self):
-        self.hostapd.reload("wpa2.conf")
+    def wpa2(self, ssid, passphrase):
+        self.hostapd.wpa2(ssid, passphrase)
         print("Hostap running mode wpa2")
         
         print("Scanning wifi ...")
         self.connman.scan()
 
-        ServiceId = self.connman.getServiceId("wpa2rezo")
-
         print("Connecting to network ...")
-        self.connman.setPassphrase("12345678")
+        ServiceId = self.connman.getServiceId(ssid)
+
+        self.connman.setPassphrase(passphrase)
         self.connman.connect(ServiceId)
     
         print("Checking network status ...")
@@ -50,7 +50,7 @@ if (__name__ == "__main__"):
 
     wlantest = wlantest()
 
-    wlantest.wpa2()
+    wlantest.wpa2("wpa2rezo", "12345678")
 
     wlantest.stop()
     
