@@ -9,6 +9,9 @@
 #HOSTAP_DIR = "/usr/local/bin"
 CONF_FILE = "/home/maxence/src/hostap/hostapd/hostapd.conf"
 IFACE = "wlan1"
+DRIVER = "nl80211"
+MODE = "g"
+CHANNEL = "1"
 
 import subprocess
 import os,signal
@@ -20,11 +23,15 @@ class Config:
     """
 
     def __init__(self):
-        self.config = open ("hostapd.conf", "w")
+        self.config = open (CONF_FILE, "w")
+        # Set default settings
         self.set("interface", IFACE)
+        self.set("driver", DRIVER)
+        self.set("hw_mode", MODE)
+        self.set("channel", CHANNEL)
 
     def set(self, key, value):
-        self.config.write("%s = %s\n" %(key,value))
+        self.config.write("%s=%s\n" %(key,value))
 
     def push(self):
         self.config.close()
@@ -35,19 +42,23 @@ class Hostapd:
     """
 
     def __init__(self):
-        self.cmd = ["hostapd", TEMP_FILE]
+        self.cmd = ["hostapd", CONF_FILE]
         self.proc = subprocess.Popen(self.cmd)
         sleep(3)
 
-    def wpa2(self, ssid = "wpa2rezo", passphrase="12345678"):
+    def wpa2(self, ssid, passphrase):
 
         config = Config()
 
         config.set("ssid", ssid)
+        self.ssid = ssid
+        config.set("wpa", "2")
         config.set("wpa_passphrase", passphrase)
+        self.passphrase = passphrase
+        config.set("wpa_key_mgmt", "WPA-PSK")
+        config.set("wpa_pairwise", "CCMP")
 
         config.push()
-
         self.reload()        
 
     def wpa(self, ssid = "wparezo", passphrase="12345678"):
@@ -64,4 +75,4 @@ class Hostapd:
 if (__name__ == "__main__"):
 
     myhost = Hostapd()
-    myhost.wpa2("wpatest","123")
+    myhost.wpa2("stresstest","42424242")
