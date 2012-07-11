@@ -41,6 +41,28 @@ class wlantest:
         print("Disconnecting ...")
         self.connman.disconnect(ServiceId)
 
+    def wpa(self, ssid, passphrase):
+        self.hostapd.wpa(ssid, passphrase)
+        print("Hostap running mode wpa")
+        
+        print("Scanning wifi ...")
+        self.connman.scan()
+
+        print("Connecting to network ...")
+        ServiceId = self.connman.getServiceId(ssid)
+
+        self.connman.setPassphrase(passphrase)
+        self.connman.connect(ServiceId)
+    
+        print("Checking network status ...")
+        if self.connman.serviceisConnected(ServiceId):
+            print "Success !"
+        else:
+            print "Fail"
+
+        print("Disconnecting ...")
+        self.connman.disconnect(ServiceId)
+
     def stop(self):
         self.hostapd.kill()
 
@@ -51,6 +73,8 @@ if (__name__ == "__main__"):
     wlantest = wlantest()
 
     wlantest.wpa2("wpa2rezo", "12345678")
+
+    wlantest.wpa("wparezo", "42424242")
 
     wlantest.stop()
     

@@ -61,8 +61,20 @@ class Hostapd:
         config.push()
         self.reload()        
 
-    def wpa(self, ssid = "wparezo", passphrase="12345678"):
-        pass
+    def wpa(self, ssid, passphrase):
+
+        config = Config()
+
+        config.set("ssid", ssid)
+        self.ssid = ssid
+        config.set("wpa", "1")
+        config.set("wpa_passphrase", passphrase)
+        self.passphrase = passphrase
+        config.set("wpa_key_mgmt", "WPA-PSK")
+        config.set("wpa_pairwise", "TKIP")
+
+        config.push()
+        self.reload()        
 
     def reload(self):
         os.kill(self.proc.pid, signal.SIGHUP)
