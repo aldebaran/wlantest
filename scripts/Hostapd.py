@@ -55,6 +55,17 @@ class Hostapd:
         config.close()
         self.reload()
 
+    def wep(self, ssid, passphrase):
+
+        config = Config()
+
+        config.set("ssid", ssid)
+        config.set("wep_default_key", "0")
+        config.set("wep_key0", passphrase)
+
+        config.close()
+        self.reload()
+
     def wpa2(self, ssid, passphrase):
 
         config = Config()

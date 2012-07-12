@@ -25,6 +25,12 @@ class wlantest:
 
         self.testpsk(ssid, None)
     
+    def wep(self, ssid, passphrase):
+        self.hostapd.wep(ssid, passphrase)
+        print("Hostap running mode wep")
+
+        self.testpsk(ssid, passphrase)
+    
     def wpa2(self, ssid, passphrase):
         self.hostapd.wpa2(ssid, passphrase)
         print("Hostap running mode wpa2")
@@ -67,6 +73,8 @@ if (__name__ == "__main__"):
     wlantest = wlantest()
     
     wlantest.open("openrezo")
+
+    wlantest.wep("weprezo", "1234567891")
 
     wlantest.wpa2("wpa2rezo", "12345678")
 
