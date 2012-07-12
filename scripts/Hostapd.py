@@ -33,7 +33,7 @@ class Config:
     def set(self, key, value):
         self.config.write("%s=%s\n" %(key,value))
 
-    def push(self):
+    def close(self):
         self.config.close()
 
 class Hostapd:
@@ -52,7 +52,7 @@ class Hostapd:
 
         config.set("ssid", ssid)
 
-        config.push()
+        config.close()
         self.reload()
 
     def wpa2(self, ssid, passphrase):
@@ -67,7 +67,7 @@ class Hostapd:
         config.set("wpa_key_mgmt", "WPA-PSK")
         config.set("wpa_pairwise", "CCMP")
 
-        config.push()
+        config.close()
         self.reload()        
 
     def wpa(self, ssid, passphrase):
@@ -82,7 +82,7 @@ class Hostapd:
         config.set("wpa_key_mgmt", "WPA-PSK")
         config.set("wpa_pairwise", "TKIP")
 
-        config.push()
+        config.close()
         self.reload()        
 
     def reload(self):
