@@ -18,6 +18,12 @@ class wlantest:
     def __init__(self):
         self.connman = ConnmanClient()
         self.hostapd = Hostapd()
+
+    def open(self, ssid):
+        self.hostapd.open(ssid)
+        print("Hostap running mode open")
+
+        self.testpsk(ssid, None)
     
     def wpa2(self, ssid, passphrase):
         self.hostapd.wpa2(ssid, passphrase)
@@ -59,6 +65,8 @@ if (__name__ == "__main__"):
     # TODO : Start dhcp
 
     wlantest = wlantest()
+    
+    wlantest.open("openrezo")
 
     wlantest.wpa2("wpa2rezo", "12345678")
 

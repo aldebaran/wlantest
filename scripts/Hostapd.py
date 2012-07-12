@@ -46,6 +46,15 @@ class Hostapd:
         self.proc = subprocess.Popen(self.cmd)
         sleep(3)
 
+    def open(self, ssid):
+
+        config = Config()
+
+        config.set("ssid", ssid)
+
+        config.push()
+        self.reload()
+
     def wpa2(self, ssid, passphrase):
 
         config = Config()
