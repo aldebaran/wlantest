@@ -191,11 +191,12 @@ class ConnmanClient:
         config.read(CONF)
         
         section = "service_"+ssid+"_"+method
-        config.add_section(section)
-        config.set(section, "Type", "wifi")
-        config.set(section, "Name", ssid)
-        config.set(section, "EAP", method)
-        config.set(section, "Phase2", phase2)
+        if not config.has_section(section):
+            config.add_section(section)
+            config.set(section, "Type", "wifi")
+            config.set(section, "Name", ssid)
+            config.set(section, "EAP", method)
+            config.set(section, "Phase2", phase2)
 
         with open(CONF, 'wb') as configfile:
             config.write(configfile)
