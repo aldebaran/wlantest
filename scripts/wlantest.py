@@ -72,9 +72,9 @@ class wlantest:
     
         print("Checking network status ...")
         if self.connman.serviceisConnected(ServiceId):
-            print "Success !"
+            print "\033[92m[Ok]\033[0m"
         else:
-            print "Fail"
+            print "\033[91m[Err]\033[0m"
 
         print("Disconnecting ...")
         self.connman.disconnect(ServiceId)
