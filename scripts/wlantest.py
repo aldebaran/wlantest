@@ -44,12 +44,12 @@ class wlantest:
         self.test(ssid, passphrase)
 
     def wpa_eap(self, ssid, identity, passphrase):
-        self.hostapd.eapwpa(ssid)
+        self.hostapd.wpa_eap(ssid)
         print("Hostap running mode eap/wpa")
         
         # TODO : Write new section in connman.config
 
-        self.test(self, ssid, passphrase,identity)
+        self.test(ssid, passphrase, identity)
 
     def test(self, ssid, passphrase, identity = None):
 
@@ -87,6 +87,8 @@ if (__name__ == "__main__"):
     wlantest.wpa2("wpa2rezo", "12345678")
 
     wlantest.wpa("wparezo", "42424242")
+
+    wlantest.wpa_eap("peaprezo", "maxence", "pipo")
 
     wlantest.stop()
     
