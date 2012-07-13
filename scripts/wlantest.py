@@ -23,27 +23,35 @@ class wlantest:
         self.hostapd.open(ssid)
         print("Hostap running mode open")
 
-        self.testpsk(ssid, None)
+        self.test(ssid, None)
     
     def wep(self, ssid, passphrase):
         self.hostapd.wep(ssid, passphrase)
         print("Hostap running mode wep")
 
-        self.testpsk(ssid, passphrase)
+        self.test(ssid, passphrase)
     
     def wpa2(self, ssid, passphrase):
         self.hostapd.wpa2(ssid, passphrase)
         print("Hostap running mode wpa2")
 
-        self.testpsk(ssid, passphrase)
+        self.test(ssid, passphrase)
         
     def wpa(self, ssid, passphrase):
         self.hostapd.wpa(ssid, passphrase)
         print("Hostap running mode wpa")
 
-        self.testpsk(ssid, passphrase)
+        self.test(ssid, passphrase)
 
-    def testpsk(self, ssid, passphrase):
+    def wpa_eap(self, ssid, identity, passphrase):
+        self.hostapd.eapwpa(ssid)
+        print("Hostap running mode eap/wpa")
+        
+        # TODO : Write new section in connman.config
+
+        self.test(self, ssid, passphrase,identity)
+
+    def test(self, ssid, passphrase, identity = None):
 
         print("Scanning wifi ...")
         self.connman.scan()
@@ -51,7 +59,7 @@ class wlantest:
         print("Connecting to network ...")
         ServiceId = self.connman.getServiceId(ssid)
 
-        self.connman.setPassphrase(passphrase)
+        self.connman.setCredentials(passphrase = passphrase, identity = identity)
         self.connman.connect(ServiceId)
     
         print("Checking network status ...")

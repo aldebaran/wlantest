@@ -178,8 +178,9 @@ class ConnmanClient:
                 ServiceId = path[path.rfind("/") + 1:]
                 return ServiceId
 
-    def setPassphrase(self, Passphrase):
-        self.agent.object.passphrase = Passphrase
+    def setCredentials(self, passphrase, identity = None):
+        self.agent.object.identity = identity
+        self.agent.object.passphrase = passphrase
 
 if (__name__ == "__main__"):
     myConn = ConnmanClient()
