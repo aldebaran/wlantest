@@ -6,6 +6,9 @@
 ##  - Maxence VIALLON <mviallon@aldebaran-robotics.com>
 ##
 
+CONF = "/usr/local/var/lib/connman/connman.config"
+
+import ConfigParser
 import gobject
 
 import dbus
@@ -181,6 +184,21 @@ class ConnmanClient:
     def setCredentials(self, passphrase, identity = None):
         self.agent.object.identity = identity
         self.agent.object.passphrase = passphrase
+
+    def setConfig(self, ssid, method, phase2):
+        config = ConfigParser.RawConfigParser()
+        config.optionxform = str
+        config.read(CONF)
+        
+        section = "service_"+ssid+"_"+method
+        config.add_section(section)
+        config.set(section, "Type", "wifi")
+        config.set(section, "Name", ssid)
+        config.set(section, "EAP", method)
+        config.set(section, "Phase2", phase2)
+
+        with open(CONF, 'wb') as configfile:
+            config.write(configfile)
 
 if (__name__ == "__main__"):
     myConn = ConnmanClient()

@@ -47,7 +47,7 @@ class wlantest:
         self.hostapd.wpa_eap(ssid)
         print("Hostap running mode eap/wpa")
         
-        # TODO : Write new section in connman.config
+        self.connman.setConfig(ssid, "peap", "MSCHAPV2")
 
         self.test(ssid, passphrase, identity)
 
