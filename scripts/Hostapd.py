@@ -71,20 +71,7 @@ class Hostapd:
         config.close()
         self.reload()
 
-    def wpa2(self, ssid, passphrase):
-
-        config = Config()
-
-        config.set("ssid", ssid)
-        config.set("wpa", "2")
-        config.set("wpa_passphrase", passphrase)
-        config.set("wpa_key_mgmt", "WPA-PSK")
-        config.set("wpa_pairwise", "CCMP")
-
-        config.close()
-        self.reload()        
-
-    def wpa(self, ssid, passphrase):
+    def wpa_psk(self, ssid, passphrase):
 
         config = Config()
 
@@ -93,6 +80,19 @@ class Hostapd:
         config.set("wpa_passphrase", passphrase)
         config.set("wpa_key_mgmt", "WPA-PSK")
         config.set("wpa_pairwise", "TKIP")
+
+        config.close()
+        self.reload()        
+
+    def wpa2_psk(self, ssid, passphrase):
+
+        config = Config()
+
+        config.set("ssid", ssid)
+        config.set("wpa", "2")
+        config.set("wpa_passphrase", passphrase)
+        config.set("wpa_key_mgmt", "WPA-PSK")
+        config.set("wpa_pairwise", "CCMP")
 
         config.close()
         self.reload()        
@@ -110,6 +110,23 @@ class Hostapd:
         config.set("wpa", "1")
         config.set("wpa_key_mgmt", "WPA-EAP")
         config.set("wpa_pairwise", "TKIP")
+
+        config.close()
+        self.reload()
+
+    def wpa2_eap(self, ssid):
+         
+        config = Config()
+
+        config.set("ssid", ssid)
+        config.set("ieee8021x", "1")
+        config.set("own_ip_addr", NAS_IP)
+        config.set("auth_server_addr", RADIUS_IP)
+        config.set("auth_server_port", RADIUS_PORT)
+        config.set("auth_server_shared_secret", RADIUS_SECRET)
+        config.set("wpa", "2")
+        config.set("wpa_key_mgmt", "WPA-EAP")
+        config.set("wpa_pairwise", "CCMP")
 
         config.close()
         self.reload()

@@ -31,21 +31,29 @@ class wlantest:
 
         self.test(ssid, passphrase)
     
-    def wpa2(self, ssid, passphrase):
-        self.hostapd.wpa2(ssid, passphrase)
-        print("Hostap running mode wpa2")
+    def wpa_psk(self, ssid, passphrase):
+        self.hostapd.wpa_psk(ssid, passphrase)
+        print("Hostap running mode wpa/psk")
+
+        self.test(ssid, passphrase)
+
+    def wpa2_psk(self, ssid, passphrase):
+        self.hostapd.wpa2_psk(ssid, passphrase)
+        print("Hostap running mode wpa2/psk")
 
         self.test(ssid, passphrase)
         
-    def wpa(self, ssid, passphrase):
-        self.hostapd.wpa(ssid, passphrase)
-        print("Hostap running mode wpa")
-
-        self.test(ssid, passphrase)
-
     def wpa_eap(self, ssid, identity, passphrase):
         self.hostapd.wpa_eap(ssid)
-        print("Hostap running mode eap/wpa")
+        print("Hostap running mode wpa/eap")
+        
+        self.connman.setConfig(ssid, "peap", "MSCHAPV2")
+
+        self.test(ssid, passphrase, identity)
+
+    def wpa2_eap(self, ssid, identity, passphrase):
+        self.hostapd.wpa2_eap(ssid)
+        print("Hostap running mode wpa2/eap")
         
         self.connman.setConfig(ssid, "peap", "MSCHAPV2")
 
@@ -84,11 +92,13 @@ if (__name__ == "__main__"):
 
     wlantest.wep("weprezo", "1234567891")
 
-    wlantest.wpa2("wpa2rezo", "12345678")
+    wlantest.wpa_psk("wparezo", "42424242")
 
-    wlantest.wpa("wparezo", "42424242")
+    wlantest.wpa2_psk("wpa2rezo", "12345678")
 
     wlantest.wpa_eap("peaprezo", "maxence", "pipo")
+
+    wlantest.wpa2_eap("peaprezo", "maxence", "pipo")
 
     wlantest.stop()
     
