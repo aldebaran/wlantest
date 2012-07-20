@@ -9,114 +9,87 @@
 CONF = "/usr/local/var/lib/connman/connman.config"
 
 import ConfigParser
-import gobject
 
 import dbus
+
 import dbus.service
 import dbus.mainloop.glib
-import threading
+import gobject
 
 class Agent(dbus.service.Object):
-	name = None
-	ssid = None
-	identity = None
-	passphrase = None
-	wpspin = None
-	username = None
-	password = None
+    name = None
+    ssid = None
+    identity = None
+    passphrase = None
+    wpspin = None
+    username = None
+    password = None
 
-	@dbus.service.method("net.connman.Agent",
-					in_signature='', out_signature='')
-	def Release(self):
-		loop.quit()
+    @dbus.service.method("net.connman.Agent",
+                    in_signature='', out_signature='')
+    def Release(self):
+    loop.quit()
 
-	def input_passphrase(self):
-		response = {}
+    def input_passphrase(self):
+        response = {}
 
-		if self.identity:
-			response["Identity"] = self.identity
-		if self.passphrase:
-			response["Passphrase"] = self.passphrase
-		if self.wpspin:
-			response["WPS"] = self.wpspin
+        if self.identity:
+            response["Identity"] = self.identity
+        if self.passphrase:
+            response["Passphrase"] = self.passphrase
+        if self.wpspin:
+            response["WPS"] = self.wpspin
 
-		return response
+        return response
 
-	def input_username(self):
-		response = {}
+    def input_username(self):
+        response = {}
 
-		if self.username:
-			response["Username"] = self.username
-		if self.password:
-			response["Password"] = self.password
+        if self.username:
+            response["Username"] = self.username
+        if self.password:
+            response["Password"] = self.password
 
-		return response
+        return response
 
-	def input_hidden(self):
-		response = {}
+    def input_hidden(self):
+        response = {}
 
-		if self.name:
-			response["Name"] = self.name
-		if self.ssid:
-			response["SSID"] = self.ssid
+        if self.name:
+            response["Name"] = self.name
+        if self.ssid:
+            response["SSID"] = self.ssid
 
-		return response
+        return response
 
-	@dbus.service.method("net.connman.Agent",
-					in_signature='oa{sv}',
-					out_signature='a{sv}')
-	def RequestInput(self, path, fields):
-		response = {}
+    @dbus.service.method("net.connman.Agent",
+                    in_signature='oa{sv}', out_signature='a{sv}')
+    def RequestInput(self, path, fields):
+        response = {}
 
-		if fields.has_key("Name"):
-			response.update(self.input_hidden())
-		if fields.has_key("Passphrase"):
-			response.update(self.input_passphrase())
-		if fields.has_key("Username"):
-			response.update(self.input_username())
+        if fields.has_key("Name"):
+            response.update(self.input_hidden())
+        if fields.has_key("Passphrase"):
+            response.update(self.input_passphrase())
+        if fields.has_key("Username"):
+            response.update(self.input_username())
 
-		print response
-		return response
-    
-	@dbus.service.method("net.connman.Agent",
-					in_signature='', out_signature='')
-	def Cancel(self):
-		pass
+        print response
+        return response
 
-class AgentThread (threading.Thread):
-    """
-    Thread dedicated to run the agent
-    """
+    @dbus.service.method("net.connman.Agent",
+                    in_signature='', out_signature='')
+    def Cancel(self):
+        pass
 
-    def __init__(self, daemon):
-        threading.Thread.__init__(self)
-        self.daemon = daemon
+def handle_connect_error(error):
+    loop.quit()
+    print "Connect returns an error"
+    print error
 
-    def run(self):
-        gobject.threads_init()
-        dbus.mainloop.glib.threads_init()
-        dbus_loop = dbus.mainloop.glib.DBusGMainLoop()
-    
-        bus = dbus.SystemBus(mainloop=dbus_loop)
-        manager = dbus.Interface(bus.get_object('net.connman', "/"),
-                                'net.connman.Manager')
-        
-        path = "/test/agent"
-        self.object = Agent(bus, path)
-        
-        manager.RegisterAgent(path)
-        
-        mainloop = gobject.MainLoop()
-        mainloop.run()
-    
-#def handle_connect_error(error):
-#    loop.quit()
-#    print "Connect returns an error"
-#    print error
-#
-#def handle_connect_reply():
-#    loop.quit()
-#    print "Connect callback"
+def handle_connect_reply():
+    loop.quit()
+    print "Connect callback"
 
 class ConnmanClient:
     """
@@ -125,11 +98,9 @@ class ConnmanClient:
 
     def __init__(self):
 
-        # Init AgentThread
-        self.agent = AgentThread(True)
-        self.agent.start()
-
         # Setting up bus
+        dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
+
         self.bus = dbus.SystemBus()
         self.manager = dbus.Interface(self.bus.get_object("net.connman", "/"), \
                 "net.connman.Manager")
@@ -143,24 +114,31 @@ class ConnmanClient:
         path = "/net/connman/service/" + ServiceId
 
         service = dbus.Interface(self.bus.get_object("net.connman", path),
-		    				"net.connman.Service")
+                            "net.connman.Service")
 
         try:
-            service.Connect(timeout=60000)
-#            service.Connect(timeout=60000, 
-#                            reply_handler=handle_connect_reply,
-#                            error_handler=handle_connect_error)
-#            loop.run()
+
+            agentpath = "/test/agent"
+            object = Agent(self.bus, agentpath)
+            self.manager.RegisterAgent(agentpath)
+
+            service.Connect(timeout=60000,
+                            reply_handler=handle_connect_reply,
+                            error_handler=handle_connect_error)
+
+            global loop
+            loop = gobject.MainLoop()
+            loop.run()
 
         except dbus.DBusException, error:
             print "%s: %s" % (error._dbus_error_name, error.message)
 
     def disconnect(self, ServiceId):
-        
+
         path = "/net/connman/service/" + ServiceId
 
         service = dbus.Interface(self.bus.get_object("net.connman", path),
-		    				"net.connman.Service")
+                            "net.connman.Service")
 
         try:
             service.Disconnect(timeout=60000)
@@ -203,7 +181,6 @@ class ConnmanClient:
 
 if (__name__ == "__main__"):
     myConn = ConnmanClient()
-    myConn.setPassphrase("12345678")
     ServiceId = myConn.getServiceId("wpa2rezo")
     print ServiceId
     myConn.connect(ServiceId)
