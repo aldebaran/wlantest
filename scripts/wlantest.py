@@ -67,8 +67,7 @@ class wlantest:
         print("Connecting to network ...")
         ServiceId = self.connman.getServiceId(ssid)
 
-        self.connman.setCredentials(passphrase = passphrase, identity = identity)
-        self.connman.connect(ServiceId)
+        self.connman.connect(ServiceId, passphrase = passphrase, identity = identity)
     
         print("Checking network status ...")
         if self.connman.serviceisConnected(ServiceId):

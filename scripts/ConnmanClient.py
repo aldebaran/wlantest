@@ -28,7 +28,7 @@ class Agent(dbus.service.Object):
     @dbus.service.method("net.connman.Agent",
                     in_signature='', out_signature='')
     def Release(self):
-    loop.quit()
+        loop.quit()
 
     def input_passphrase(self):
         response = {}
@@ -110,17 +110,21 @@ class ConnmanClient:
     def scan(self):
         self.technology.Scan()
 
-    def connect(self, ServiceId):
+    def connect(self, ServiceId, **dict):
         path = "/net/connman/service/" + ServiceId
 
         service = dbus.Interface(self.bus.get_object("net.connman", path),
                             "net.connman.Service")
 
         try:
-
             agentpath = "/test/agent"
-            object = Agent(self.bus, agentpath)
+            agent = Agent(self.bus, agentpath)
             self.manager.RegisterAgent(agentpath)
+
+            if dict.has_key("passphrase"):
+                agent.passphrase = dict["passphrase"]
+            if dict.has_key("identity"):
+                agent.identity = dict["identity"]
 
             service.Connect(timeout=60000,
                             reply_handler=handle_connect_reply,
@@ -158,10 +162,6 @@ class ConnmanClient:
             if properties.get("Name", "") == ServiceName:
                 ServiceId = path[path.rfind("/") + 1:]
                 return ServiceId
-
-    def setCredentials(self, passphrase, identity = None):
-        self.agent.object.identity = identity
-        self.agent.object.passphrase = passphrase
 
     def setConfig(self, ssid, method, phase2):
         config = ConfigParser.RawConfigParser()
