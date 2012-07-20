@@ -107,6 +107,10 @@ class ConnmanClient:
         self.technology = dbus.Interface(self.bus.get_object("net.connman", \
                 "/net/connman/technology/wifi"), "net.connman.Technology")
 
+        agentpath = "/test/agent"
+        self.agent = Agent(self.bus, agentpath)
+        self.manager.RegisterAgent(agentpath)
+
     def scan(self):
         self.technology.Scan()
 
@@ -117,14 +121,10 @@ class ConnmanClient:
                             "net.connman.Service")
 
         try:
-            agentpath = "/test/agent"
-            agent = Agent(self.bus, agentpath)
-            self.manager.RegisterAgent(agentpath)
-
             if dict.has_key("passphrase"):
-                agent.passphrase = dict["passphrase"]
+                self.agent.passphrase = dict["passphrase"]
             if dict.has_key("identity"):
-                agent.identity = dict["identity"]
+                self.agent.identity = dict["identity"]
 
             service.Connect(timeout=60000,
                             reply_handler=handle_connect_reply,
