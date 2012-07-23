@@ -45,7 +45,7 @@ class wlantest:
         
     def wpa_eap(self, ssid, method, identity, passphrase):
         self.hostapd.wpa_eap(ssid)
-        print("Hostap running mode wpa/eap")
+        print("Hostap running mode wpa/eap "+method)
         
         self.connman.setConfig(ssid, method, "MSCHAPV2")
 
@@ -53,7 +53,7 @@ class wlantest:
 
     def wpa2_eap(self, ssid, method, identity, passphrase):
         self.hostapd.wpa2_eap(ssid)
-        print("Hostap running mode wpa2/eap")
+        print("Hostap running mode wpa2/eap "+method)
         
         self.connman.setConfig(ssid, method, "MSCHAPV2")
 
