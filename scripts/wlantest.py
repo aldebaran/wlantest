@@ -56,7 +56,7 @@ class wlantest:
             pass
 
         #Testing
-        if self.connman.serviceisConnected(ServiceId):
+        if self.connman.getState(ServiceId) == dict['state']
             return True
         else:
             return False

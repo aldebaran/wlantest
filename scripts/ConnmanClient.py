@@ -149,13 +149,10 @@ class ConnmanClient:
         except dbus.DBusException, error:
             print "%s: %s" % (error._dbus_error_name, error.message)
 
-    def serviceisConnected(self, ServiceId):
+    def getState(self, ServiceId):
         for path,properties in self.manager.GetServices(): 
             if path == "/net/connman/service/" + ServiceId:
-                    if properties["State"] in ("ready","online"):
-                        return True
-                    else:
-                        return False
+                    return properties["State"]
 
     def getServiceId(self, ServiceName):
         for path,properties in self.manager.GetServices(): 
