@@ -50,16 +50,24 @@ class wlantest:
         if dict['type'] == 'manual':
             self.connman.scan()
             ServiceId = self.connman.getServiceId(dict['ssid'])
-            self.connman.connect(ServiceId, dict['passphrase'], dict['identity'])
+            if dict['security'] == 'open':
+                self.connman.connect(ServiceId)
+            elif dict ['security'] in ('wep', 'wpa-psk', 'wpa2-psk'):
+                self.connman.connect(ServiceId, \
+                                    passphrase = dict['passphrase'])
+            elif dict ['security'] in ('wpa-eap', 'wpa2-eap'):
+                self.connman.connect(ServiceId, \
+                                    passphrase = dict['passphrase'], \
+                                    identity = dict['identity'])
 
         elif dict['type'] == 'auto':
             pass
 
         #Testing
-        if self.connman.getState(ServiceId) == dict['state']
-            return True
+        if self.connman.getState(ServiceId) == dict['state']:
+            print 'True'
         else:
-            return False
+            print 'False'
 
         #Disconnecting
         self.connman.disconnect(ServiceId)
