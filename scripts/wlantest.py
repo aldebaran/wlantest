@@ -9,8 +9,10 @@
 ##
 
 OUTPUT_FILE = '/home/maxence/src/wlantest/scripts/wlantest.log'
+AUTO_TIMEOUT = 120
 
 import os
+from time import sleep
 import ConfigParser
 
 from ConnmanClient import ConnmanClient
@@ -46,12 +48,12 @@ class wlantest:
         elif dict['security'] == 'wpa-eap':
             self.hostapd.wpa_eap(dict['ssid'])
             self.connman.setConfig(Name = dict['ssid'], \
-                                Method = dict['method'], \
+                                EAP = dict['method'], \
                                 Phase2 = dict['phase2'])
         elif dict['security'] == 'wpa2-eap':
             self.hostapd.wpa2_eap(dict['ssid'])
             self.connman.setConfig(Name = dict['ssid'], \
-                                Method = dict['method'], \
+                                EAP = dict['method'], \
                                 Phase2 = dict['phase2'])
 
         #Connecting
@@ -69,7 +71,19 @@ class wlantest:
                                     identity = dict['identity'])
 
         elif dict['type'] == 'auto':
-            pass
+            ServiceId = self.connman.getServiceId(dict['ssid'])
+            if dict['security'] == 'open':
+                self.connman.setConfig(Name = dict['ssid'])
+            elif dict ['security'] in ('wep', 'wpa-psk', 'wpa2-psk'):
+                self.connman.setConfig(Name = dict['ssid'], \
+                                    Passphrase = dict['passphrase'])
+            elif dict ['security'] in ('wpa-eap', 'wpa2-eap'):
+                self.connman.setConfig(Name = dict['ssid'], \
+                                    EAP = dict['method'], \
+                                    Phase2 = dict['phase2'], \
+                                    Passphrase = dict['passphrase'], \
+                                    Identity = dict['identity'])
+            sleep(120)
 
         #Testing
         if self.connman.getState(ServiceId) == dict['state']:
@@ -86,39 +100,13 @@ class wlantest:
 
 if (__name__ == "__main__"):
 
-    # TODO : Start dhcp
-
     wlantest = wlantest()
 
     wlantest.run('test.conf')
 
-#    wlantest.open("openrezo")
-#
-#    wlantest.wep("weprezo", "1234567891")
-#
-#    wlantest.wpa_psk("wparezo", "42424242")
-#
-#    wlantest.wpa2_psk("wpa2rezo", "12345678")
-#
-#    wlantest.wpa_eap(ssid = "peaprezo",\
-#                    method = "peap",\
-#                    identity = "maxence",\
-#                    passphrase = "pipo")
-#
-#    wlantest.wpa_eap(ssid = "ttlsrezo",\
-#                    method = "ttls",\
-#                    identity = "maxence",\
-#                    passphrase = "pipo")
-#
-#    wlantest.wpa2_eap(ssid = "peaprezo",\
-#                    method = "peap",\
-#                    identity = "maxence",\
-#                    passphrase = "pipo")
-#
-#    wlantest.wpa2_eap(ssid = "ttlsrezo",\
-#                    method = "ttls",\
-#                    identity = "maxence",\
-#                    passphrase = "pipo")
+    wlantest.run('test2.conf')
+
+    wlantest.run('test3.conf')
 
     wlantest.stop()
 

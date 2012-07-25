@@ -173,7 +173,7 @@ class ConnmanClient:
             if param.has_key(item):
                 config.set(section, item, param[item])
 
-        with open(CONF, 'wb') as configfile:
+        with open(CONF, 'w') as configfile:
             config.write(configfile)
 
 if (__name__ == "__main__"):
