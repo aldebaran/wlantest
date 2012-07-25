@@ -160,18 +160,18 @@ class ConnmanClient:
                 ServiceId = path[path.rfind("/") + 1:]
                 return ServiceId
 
-    def setConfig(self, ssid, method, phase2):
+    def setConfig(self, **param):
         config = ConfigParser.RawConfigParser()
         config.optionxform = str
         config.read(CONF)
         
-        section = "service_"+ssid+"_"+method
-        if not config.has_section(section):
-            config.add_section(section)
-            config.set(section, "Type", "wifi")
-            config.set(section, "Name", ssid)
-            config.set(section, "EAP", method)
-            config.set(section, "Phase2", phase2)
+        section = "service_"+param['Name']
+        config.remove_section(section)
+        config.add_section(section)
+        config.set(section, "Type", "wifi")
+        for item in param:
+            if param.has_key(item):
+                config.set(section, item, param[item])
 
         with open(CONF, 'wb') as configfile:
             config.write(configfile)

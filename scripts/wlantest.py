@@ -45,10 +45,14 @@ class wlantest:
             self.hostapd.wpa2_psk(dict['ssid'], dict['passphrase'])
         elif dict['security'] == 'wpa-eap':
             self.hostapd.wpa_eap(dict['ssid'])
-            self.connman.setConfig(dict['ssid'], dict['method'], dict['phase2'])
+            self.connman.setConfig(Name = dict['ssid'], \
+                                Method = dict['method'], \
+                                Phase2 = dict['phase2'])
         elif dict['security'] == 'wpa2-eap':
             self.hostapd.wpa2_eap(dict['ssid'])
-            self.connman.setConfig(dict['ssid'], dict['method'], dict['phase2'])
+            self.connman.setConfig(Name = dict['ssid'], \
+                                Method = dict['method'], \
+                                Phase2 = dict['phase2'])
 
         #Connecting
         if dict['type'] == 'manual':
