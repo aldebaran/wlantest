@@ -8,6 +8,8 @@
 ##  - Maxence VIALLON <mviallon@aldebaran-robotics.com>
 ##
 
+OUTPUT_FILE = '/home/maxence/src/wlantest/scripts/wlantest.log'
+
 import os
 import ConfigParser
 
@@ -19,6 +21,8 @@ class wlantest:
     def __init__(self):
         self.connman = ConnmanClient()
         self.hostapd = Hostapd()
+
+        self.output = open(OUTPUT_FILE, 'w')
 
     def run(self, file):
         #Reading test file
@@ -65,15 +69,16 @@ class wlantest:
 
         #Testing
         if self.connman.getState(ServiceId) == dict['state']:
-            print 'True'
+            self.output.write('Test ' + dict['id_test'] + ' - [Ok]\n')
         else:
-            print 'False'
+            self.output.write('Test ' + dict['id_test'] + ' - [Err]\n')
 
         #Disconnecting
         self.connman.disconnect(ServiceId)
 
     def stop(self):
         self.hostapd.kill()
+        self.output.close()
 
 if (__name__ == "__main__"):
 
