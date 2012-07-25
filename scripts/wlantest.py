@@ -8,7 +8,7 @@
 ##  - Maxence VIALLON <mviallon@aldebaran-robotics.com>
 ##
 
-OUTPUT_FILE = '/home/maxence/src/wlantest/scripts/wlantest.log'
+OUTPUT_FILE = '/home/maxence/src/wlantest/scripts/output.log'
 AUTO_TIMEOUT = 120
 
 import os
@@ -90,9 +90,9 @@ class wlantest:
 
         #Testing
         if self.connman.getState(ServiceId) == dict['state']:
-            self.output.write('Test ' + dict['id_test'] + ' - [Ok]\n')
+            self.output.write('Test ' + dict['id_test'] + '\t[Ok]\n')
         else:
-            self.output.write('Test ' + dict['id_test'] + ' - [Err]\n')
+            self.output.write('Test ' + dict['id_test'] + '\t[Fail]\n')
 
         #Disconnecting
         self.connman.disconnect(ServiceId)
