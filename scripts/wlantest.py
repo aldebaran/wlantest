@@ -15,6 +15,9 @@ import os
 from time import sleep
 import ConfigParser
 
+TEST_DIR = '/home/maxence/src/wlantest/scripts/conf'
+TEST_FILES = os.listdir(TEST_DIR)
+
 from ConnmanClient import ConnmanClient
 from Hostapd import Hostapd
 
@@ -29,7 +32,7 @@ class wlantest:
     def run(self, file):
         #Reading test file
         config = ConfigParser.RawConfigParser()
-        config.read(file)
+        config.read(TEST_DIR + '/' + file)
 
         #Parsing file to dictionary
         dict = {}
@@ -102,11 +105,8 @@ if (__name__ == "__main__"):
 
     wlantest = wlantest()
 
-    wlantest.run('test.conf')
-
-    wlantest.run('test2.conf')
-
-    wlantest.run('test3.conf')
+    for file in TEST_FILES:
+        wlantest.run(file)
 
     wlantest.stop()
 
