@@ -15,8 +15,8 @@ import os
 from time import sleep
 import ConfigParser
 
-TEST_DIR = '../cfg'
-TEST_FILES = os.listdir(TEST_DIR)
+CONF_DIR = '/etc/wlantest'
+CONF_FILES = os.listdir(CONF_DIR)
 
 from ConnmanClient import ConnmanClient
 from Hostapd import Hostapd
@@ -32,7 +32,7 @@ class wlantest:
     def run(self, file):
         #Reading test file
         config = ConfigParser.RawConfigParser()
-        config.read(TEST_DIR + '/' + file)
+        config.read(CONF_DIR + '/' + file)
 
         #Parsing file to dictionary
         dict = {}
