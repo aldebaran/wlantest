@@ -8,14 +8,14 @@
 ##  - Maxence VIALLON <mviallon@aldebaran-robotics.com>
 ##
 
-OUTPUT_FILE = '/home/maxence/src/wlantest/scripts/output.log'
+OUTPUT_FILE = '/home/maxence/output.log'
 AUTO_TIMEOUT = 120
 
 import os
 from time import sleep
 import ConfigParser
 
-TEST_DIR = '/home/maxence/src/wlantest/scripts/conf'
+TEST_DIR = '../cfg'
 TEST_FILES = os.listdir(TEST_DIR)
 
 from ConnmanClient import ConnmanClient
@@ -101,12 +101,11 @@ class wlantest:
         self.hostapd.kill()
         self.output.close()
 
-if (__name__ == "__main__"):
-
-    wlantest = wlantest()
-
+def main():
+    mytest = wlantest()
     for file in TEST_FILES:
-        wlantest.run(file)
-
-    wlantest.stop()
-
+        mytest.run(file)
+    mytest.stop()
+    
+if (__name__ == "__main__"):
+    main()
