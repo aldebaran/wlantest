@@ -103,7 +103,7 @@ class wlantest:
 
 def main():
     mytest = wlantest()
-    for file in TEST_FILES:
+    for file in CONF_FILES:
         mytest.run(file)
     mytest.stop()
     
