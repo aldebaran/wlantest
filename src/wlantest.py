@@ -74,7 +74,6 @@ class wlantest:
                                     identity = dict['identity'])
 
         elif dict['type'] == 'auto':
-            ServiceId = self.connman.getServiceId(dict['ssid'])
             if dict['security'] == 'open':
                 self.connman.setConfig(Name = dict['ssid'])
             elif dict ['security'] in ('wep', 'wpa-psk', 'wpa2-psk'):
@@ -87,6 +86,7 @@ class wlantest:
                                     Passphrase = dict['passphrase'], \
                                     Identity = dict['identity'])
             sleep(120)
+            ServiceId = self.connman.getServiceId(dict['ssid'])
 
         #Testing
         if self.connman.getState(ServiceId) == dict['state']:
