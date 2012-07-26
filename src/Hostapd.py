@@ -6,8 +6,7 @@
 ##  - Maxence VIALLON <mviallon@aldebaran-robotics.com>
 ##
 
-#HOSTAP_DIR = "/usr/local/bin"
-CONF_FILE = "/home/maxence/src/hostap/hostapd/hostapd.conf"
+CONF_FILE = "/etc/hostapd/hostapd.conf"
 IFACE = "wlan1"
 DRIVER = "nl80211"
 MODE = "g"

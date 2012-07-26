@@ -6,7 +6,7 @@
 ##  - Maxence VIALLON <mviallon@aldebaran-robotics.com>
 ##
 
-CONF = "/usr/local/var/lib/connman/connman.config"
+CONF = "/var/lib/connman/connman.config"
 
 import ConfigParser
 

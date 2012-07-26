@@ -8,7 +8,7 @@
 ##  - Maxence VIALLON <mviallon@aldebaran-robotics.com>
 ##
 
-OUTPUT_FILE = '/home/maxence/output.log'
+OUTPUT_FILE = '/var/log/wlantest/output.log'
 AUTO_TIMEOUT = 120
 
 import os
