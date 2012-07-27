@@ -7,6 +7,5 @@ repository for automatic wireless tests
 
     hostapd >= 1.0 with defconfig
         Beware: Install it to /usr/bin and not default /usr/local/bin
-        You need to touch /etc/hostapd/hostapd.conf
 
     net-misc/dhcp (optional)

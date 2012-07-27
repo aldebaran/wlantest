@@ -6,7 +6,7 @@
 ##  - Maxence VIALLON <mviallon@aldebaran-robotics.com>
 ##
 
-CONF_FILE = "/etc/hostapd/hostapd.conf"
+CONF_FILE = "/etc/hostapd.conf"
 IFACE = "wlan1"
 DRIVER = "nl80211"
 MODE = "g"
@@ -27,7 +27,7 @@ class Config:
     """
 
     def __init__(self):
-        self.config = open (CONF_FILE, "w")
+        self.config = open (CONF_FILE, "w+")
         # Set default settings
         self.set("interface", IFACE)
         self.set("driver", DRIVER)
@@ -46,6 +46,8 @@ class Hostapd:
     """
 
     def __init__(self):
+        config = Config()
+        config.close()
         self.cmd = ["hostapd", CONF_FILE]
         self.proc = subprocess.Popen(self.cmd)
         sleep(3)
