@@ -16,7 +16,7 @@ from time import sleep
 import ConfigParser
 
 CONF_DIR = '/etc/wlantest'
-CONF_FILES = os.listdir(CONF_DIR)
+CONF_FILES = sorted(os.listdir(CONF_DIR))
 
 from ConnmanClient import ConnmanClient
 from Hostapd import Hostapd
