@@ -188,6 +188,16 @@ class ConnmanClient:
         with open(CONF, 'w') as configfile:
             config.write(configfile)
 
+    def clearConfig(self, name):
+        config = ConfigParser.RawConfigParser()
+        config.read(CONF)
+
+        section = "service_"+name
+        config.remove_section(section)
+
+        with open(CONF, 'w') as configfile:
+            config.write(configfile)
+
 if (__name__ == "__main__"):
     myConn = ConnmanClient()
     ServiceId = myConn.getServiceId("wpa2rezo")

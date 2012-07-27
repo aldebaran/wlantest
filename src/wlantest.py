@@ -96,6 +96,7 @@ class wlantest:
 
         #Disconnecting
         self.connman.disconnect(ServiceId)
+        self.connman.clearConfig(dict['ssid'])
         self.connman.remove(ServiceId)
 
     def stop(self):
