@@ -34,70 +34,76 @@ class wlantest:
         config = ConfigParser.RawConfigParser()
         config.read(CONF_DIR + '/' + file)
 
-        #Parsing file to dictionary
-        dict = {}
-        for section in config.sections():
-            dict.update(config.items(section))
+        #Parsing file to dictionaries
+        Description = {}
+        AP = {}
+        Connection = {}
+        Result = {}
+
+        Description.update(config.items('Description'))
+        AP.update(config.items('AP'))
+        Connection.update(config.items('Connection'))
+        Result.update(config.items('Result'))
 
         #APConfig
-        if dict['security'] == 'open':
-            self.hostapd.open(dict['ssid'])
-        elif dict['security'] == 'wep':
-            self.hostapd.wep(dict['ssid'], dict['passphrase'])
-        elif dict['security'] == 'wpa-psk':
-            self.hostapd.wpa_psk(dict['ssid'], dict['passphrase'])
-        elif dict['security'] == 'wpa2-psk':
-            self.hostapd.wpa2_psk(dict['ssid'], dict['passphrase'])
-        elif dict['security'] == 'wpa-eap':
-            self.hostapd.wpa_eap(dict['ssid'])
-            self.connman.setConfig(Name = dict['ssid'], \
-                                EAP = dict['method'], \
-                                Phase2 = dict['phase2'])
-        elif dict['security'] == 'wpa2-eap':
-            self.hostapd.wpa2_eap(dict['ssid'])
-            self.connman.setConfig(Name = dict['ssid'], \
-                                EAP = dict['method'], \
-                                Phase2 = dict['phase2'])
+        if AP['security'] == 'open':
+            self.hostapd.open(AP['ssid'])
+        elif AP['security'] == 'wep':
+            self.hostapd.wep(AP['ssid'], AP['passphrase'])
+        elif AP['security'] == 'wpa-psk':
+            self.hostapd.wpa_psk(AP['ssid'], AP['passphrase'])
+        elif AP['security'] == 'wpa2-psk':
+            self.hostapd.wpa2_psk(AP['ssid'], AP['passphrase'])
+        elif AP['security'] == 'wpa-eap':
+            self.hostapd.wpa_eap(AP['ssid'])
+            self.connman.setConfig(Name = AP['ssid'], \
+                                EAP = AP['method'], \
+                                Phase2 = AP['phase2'])
+        elif AP['security'] == 'wpa2-eap':
+            self.hostapd.wpa2_eap(AP['ssid'])
+            self.connman.setConfig(Name = AP['ssid'], \
+                                EAP = AP['method'], \
+                                Phase2 = AP['phase2'])
 
         #Connecting
-        if dict['type'] == 'manual':
+        if Connection['type'] == 'manual':
             self.connman.scan()
-            ServiceId = self.connman.getServiceId(dict['ssid'])
-            if dict['security'] == 'open':
+            ServiceId = self.connman.getServiceId(AP['ssid'])
+            if AP['security'] == 'open':
                 self.connman.connect(ServiceId)
-            elif dict ['security'] in ('wep', 'wpa-psk', 'wpa2-psk'):
+            elif AP['security'] in ('wep', 'wpa-psk', 'wpa2-psk'):
                 self.connman.connect(ServiceId, \
-                                    passphrase = dict['passphrase'])
-            elif dict ['security'] in ('wpa-eap', 'wpa2-eap'):
+                                    passphrase = Connection['passphrase'])
+            elif AP['security'] in ('wpa-eap', 'wpa2-eap'):
                 self.connman.connect(ServiceId, \
-                                    passphrase = dict['passphrase'], \
-                                    identity = dict['identity'])
+                                    passphrase = Connection['passphrase'], \
+                                    identity = Connection['identity'])
 
-        elif dict['type'] == 'auto':
-            if dict['security'] == 'open':
-                self.connman.setConfig(Name = dict['ssid'])
-            elif dict ['security'] in ('wep', 'wpa-psk', 'wpa2-psk'):
-                self.connman.setConfig(Name = dict['ssid'], \
-                                    Passphrase = dict['passphrase'])
-            elif dict ['security'] in ('wpa-eap', 'wpa2-eap'):
-                self.connman.setConfig(Name = dict['ssid'], \
-                                    EAP = dict['method'], \
-                                    Phase2 = dict['phase2'], \
-                                    Passphrase = dict['passphrase'], \
-                                    Identity = dict['identity'])
+        elif Connection['type'] == 'auto':
+            if AP['security'] == 'open':
+                self.connman.setConfig(Name = AP['ssid'])
+            elif AP['security'] in ('wep', 'wpa-psk', 'wpa2-psk'):
+                self.connman.setConfig(Name = AP['ssid'], \
+                                    Passphrase = AP['passphrase'])
+            elif AP['security'] in ('wpa-eap', 'wpa2-eap'):
+                self.connman.setConfig(Name = AP['ssid'], \
+                                    EAP = AP['method'], \
+                                    Phase2 = AP['phase2'], \
+                                    Passphrase = Connection['passphrase'], \
+                                    Identity = Connection['identity'])
             sleep(120)
-            ServiceId = self.connman.getServiceId(dict['ssid'])
+            ServiceId = self.connman.getServiceId(AP['ssid'])
 
         #Testing
-        if self.connman.getState(ServiceId) == dict['state'] \
-                and str(self.connman.getConnectError()) == dict['error']:
-            self.output.write('Test ' + dict['id_test'] + '\t[Ok]\n')
+        if self.connman.getState(ServiceId) == Result['state'] \
+                and str(self.connman.getConnectError()) == Result['error']:
+            self.output.write('Test ' + Description['id_test'] + '\t[Ok]\n')
         else:
-            self.output.write('Test ' + dict['id_test'] + '\t[Fail]\n')
+            self.output.write('Test ' + Description['id_test'] + '\t[Fail]\n')
 
         #Disconnecting
         self.connman.disconnect(ServiceId)
-        self.connman.clearConfig(dict['ssid'])
+        self.connman.clearConfig(AP['ssid'])
         self.connman.remove(ServiceId)
 
     def stop(self):
