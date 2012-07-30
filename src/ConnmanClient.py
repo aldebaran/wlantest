@@ -82,15 +82,6 @@ class Agent(dbus.service.Object):
     def Cancel(self):
         pass
 
-def handle_connect_error(error):
-    loop.quit()
-    print "Connect returns an error"
-    print error
-
-def handle_connect_reply():
-    loop.quit()
-    print "Connect callback"
-
 class ConnmanClient:
     """
     Class to get information from ConnMan
@@ -111,6 +102,18 @@ class ConnmanClient:
         self.agent = Agent(self.bus, agentpath)
         self.manager.RegisterAgent(agentpath)
 
+        self.error = None
+
+    def handle_connect_error(self, error):
+        loop.quit()
+        self.error = error
+        print "Connect returns an error"
+
+    def handle_connect_reply(self):
+        loop.quit()
+        self.error = None
+        print "Connect callback"
+
     def scan(self):
         self.technology.Scan()
 
@@ -120,22 +123,18 @@ class ConnmanClient:
         service = dbus.Interface(self.bus.get_object("net.connman", path),
                             "net.connman.Service")
 
-        try:
-            if dict.has_key("passphrase"):
-                self.agent.passphrase = dict["passphrase"]
-            if dict.has_key("identity"):
-                self.agent.identity = dict["identity"]
+        if dict.has_key("passphrase"):
+            self.agent.passphrase = dict["passphrase"]
+        if dict.has_key("identity"):
+            self.agent.identity = dict["identity"]
 
-            service.Connect(timeout=60000,
-                            reply_handler=handle_connect_reply,
-                            error_handler=handle_connect_error)
+        service.Connect(timeout=60000,
+                        reply_handler=self.handle_connect_reply,
+                        error_handler=self.handle_connect_error)
 
-            global loop
-            loop = gobject.MainLoop()
-            loop.run()
-
-        except dbus.DBusException, error:
-            print "%s: %s" % (error._dbus_error_name, error.message)
+        global loop
+        loop = gobject.MainLoop()
+        loop.run()
 
     def disconnect(self, ServiceId):
 
@@ -171,6 +170,9 @@ class ConnmanClient:
             if properties.get("Name", "") == ServiceName:
                 ServiceId = path[path.rfind("/") + 1:]
                 return ServiceId
+
+    def getConnectError(self):
+        return self.error
 
     def setConfig(self, **param):
         config = ConfigParser.RawConfigParser()

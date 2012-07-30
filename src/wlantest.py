@@ -89,7 +89,8 @@ class wlantest:
             ServiceId = self.connman.getServiceId(dict['ssid'])
 
         #Testing
-        if self.connman.getState(ServiceId) == dict['state']:
+        if self.connman.getState(ServiceId) == dict['state'] \
+                and str(self.connman.getConnectError()) == dict['error']:
             self.output.write('Test ' + dict['id_test'] + '\t[Ok]\n')
         else:
             self.output.write('Test ' + dict['id_test'] + '\t[Fail]\n')
