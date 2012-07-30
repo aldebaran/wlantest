@@ -174,6 +174,9 @@ class ConnmanClient:
     def getConnectError(self):
         return self.error
 
+    def resetConnectError(self):
+        self.error = None
+
     def setConfig(self, **param):
         config = ConfigParser.RawConfigParser()
         config.optionxform = str
