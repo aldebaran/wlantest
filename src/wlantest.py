@@ -66,8 +66,6 @@ class wlantest:
                                 Phase2 = AP['phase2'])
 
         #Connecting
-        self.connman.resetConnectError()
-
         if Connection['type'] == 'manual':
             self.connman.scan()
             ServiceId = self.connman.getServiceId(AP['ssid'])

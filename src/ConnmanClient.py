@@ -172,10 +172,9 @@ class ConnmanClient:
                 return ServiceId
 
     def getConnectError(self):
-        return self.error
-
-    def resetConnectError(self):
+        error = self.error
         self.error = None
+        return error
 
     def setConfig(self, **param):
         config = ConfigParser.RawConfigParser()
