@@ -10,6 +10,7 @@ setup(name='wlantest',
         author_email='mviallon@aldebaran-robotics.com',
         packages=['wlantest'],
         package_dir={'wlantest': 'src'},
-        data_files=[('/etc/wlantest', glob('cfg/*.cfg'))],
+        data_files=[('/etc/wlantest', glob('cfg/*.cfg')),
+                    ('/etc/init.d', ['initscript/wlantest.sh'])],
         scripts=['wlantest']
     )
