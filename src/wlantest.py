@@ -45,6 +45,9 @@ class wlantest:
         Connection.update(config.items('Connection'))
         Result.update(config.items('Result'))
 
+        if not 'ssid' in AP:
+            AP['ssid'] = Description['id_test']
+
         #APConfig
         if AP['security'] == 'open':
             self.hostapd.open(AP['ssid'])
