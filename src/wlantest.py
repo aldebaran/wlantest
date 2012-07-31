@@ -50,20 +50,35 @@ class wlantest:
 
         #APConfig
         if AP['security'] == 'open':
-            self.hostapd.open(AP['ssid'])
+            self.hostapd.open(mode = AP['mode'], \
+                            chan = AP['channel'], \
+                            ssid = AP['ssid'])
         elif AP['security'] == 'wep':
-            self.hostapd.wep(AP['ssid'], AP['passphrase'])
+            self.hostapd.wep(mode = AP['mode'], \
+                            chan = AP['channel'], \
+                            ssid = AP['ssid'], \
+                            passphrase = AP['passphrase'])
         elif AP['security'] == 'wpa-psk':
-            self.hostapd.wpa_psk(AP['ssid'], AP['passphrase'])
+            self.hostapd.wpa_psk(mode = AP['mode'], \
+                                chan = AP['channel'], \
+                                ssid = AP['ssid'], \
+                                passphrase = AP['passphrase'])
         elif AP['security'] == 'wpa2-psk':
-            self.hostapd.wpa2_psk(AP['ssid'], AP['passphrase'])
+            self.hostapd.wpa2_psk(mode = AP['mode'], \
+                                chan = AP['channel'], \
+                                ssid = AP['ssid'], \
+                                passphrase = AP['passphrase'])
         elif AP['security'] == 'wpa-eap':
-            self.hostapd.wpa_eap(AP['ssid'])
+            self.hostapd.wpa_eap(mode = AP['mode'], \
+                                chan = AP['channel'], \
+                                ssid = AP['ssid'])
             self.connman.setConfig(Name = AP['ssid'], \
                                 EAP = AP['method'], \
                                 Phase2 = AP['phase2'])
         elif AP['security'] == 'wpa2-eap':
-            self.hostapd.wpa2_eap(AP['ssid'])
+            self.hostapd.wpa2_eap(mode = AP['mode'], \
+                                chan = AP['channel'], \
+                                ssid = AP['ssid'])
             self.connman.setConfig(Name = AP['ssid'], \
                                 EAP = AP['method'], \
                                 Phase2 = AP['phase2'])

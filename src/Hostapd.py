@@ -9,8 +9,6 @@
 CONF_FILE = "/etc/hostapd.conf"
 IFACE = "wlan1"
 DRIVER = "nl80211"
-MODE = "g"
-CHANNEL = "1"
 
 NAS_IP = "192.168.2.2"
 RADIUS_IP = "192.168.2.3"
@@ -28,11 +26,19 @@ class Config:
 
     def __init__(self):
         self.config = open (CONF_FILE, "w+")
-        # Set default settings
+        # Set shared settings
         self.set("interface", IFACE)
         self.set("driver", DRIVER)
-        self.set("hw_mode", MODE)
-        self.set("channel", CHANNEL)
+
+    def default(self):
+        self.setChannel('11')
+        self.setMode('g')
+
+    def setChannel(self, chan):
+        self.set("channel", chan)
+
+    def setMode(self, mode):
+        self.set("hw_mode", mode)
 
     def set(self, key, value):
         self.config.write("%s=%s\n" %(key,value))
@@ -46,25 +52,32 @@ class Hostapd:
     """
 
     def __init__(self):
+        # Set default config to let hostapd start
         config = Config()
+        config.default()
         config.close()
+
         self.cmd = ["hostapd", CONF_FILE]
         self.proc = subprocess.Popen(self.cmd)
         sleep(3)
 
-    def open(self, ssid):
+    def open(self, mode, chan, ssid):
 
         config = Config()
 
+        config.setMode(mode)
+        config.setChannel(chan)
         config.set("ssid", ssid)
 
         config.close()
         self.reload()
 
-    def wep(self, ssid, passphrase):
+    def wep(self, mode, chan, ssid, passphrase):
 
         config = Config()
 
+        config.setMode(mode)
+        config.setChannel(chan)
         config.set("ssid", ssid)
         config.set("wep_default_key", "0")
         config.set("wep_key0", passphrase)
@@ -72,10 +85,12 @@ class Hostapd:
         config.close()
         self.reload()
 
-    def wpa_psk(self, ssid, passphrase):
+    def wpa_psk(self, mode, chan, ssid, passphrase):
 
         config = Config()
 
+        config.setMode(mode)
+        config.setChannel(chan)
         config.set("ssid", ssid)
         config.set("wpa", "1")
         config.set("wpa_passphrase", passphrase)
@@ -85,10 +100,12 @@ class Hostapd:
         config.close()
         self.reload()        
 
-    def wpa2_psk(self, ssid, passphrase):
+    def wpa2_psk(self, mode, chan, ssid, passphrase):
 
         config = Config()
 
+        config.setMode(mode)
+        config.setChannel(chan)
         config.set("ssid", ssid)
         config.set("wpa", "2")
         config.set("wpa_passphrase", passphrase)
@@ -98,10 +115,12 @@ class Hostapd:
         config.close()
         self.reload()        
 
-    def wpa_eap(self, ssid):
+    def wpa_eap(self, mode, chan, ssid):
          
         config = Config()
 
+        config.setMode(mode)
+        config.setChannel(chan)
         config.set("ssid", ssid)
         config.set("ieee8021x", "1")
         config.set("own_ip_addr", NAS_IP)
@@ -115,10 +134,12 @@ class Hostapd:
         config.close()
         self.reload()
 
-    def wpa2_eap(self, ssid):
+    def wpa2_eap(self, mode, chan, ssid):
          
         config = Config()
 
+        config.setMode(mode)
+        config.setChannel(chan)
         config.set("ssid", ssid)
         config.set("ieee8021x", "1")
         config.set("own_ip_addr", NAS_IP)
@@ -143,4 +164,7 @@ class Hostapd:
 if (__name__ == "__main__"):
 
     myhost = Hostapd()
-    myhost.wpa2("stresstest","42424242")
+    myhost.wpa2_psk(mode = 'g', \
+                chan = '4', \
+                ssid = 'Ohyeah', \
+                passphrase = '12345678')
