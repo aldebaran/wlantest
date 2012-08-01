@@ -9,3 +9,38 @@ repository for automatic wireless tests
         Beware: Install it to /usr/bin and not default /usr/local/bin
 
     net-misc/dhcp (optional)
+
+Wlantest configuration test file format
+***************************************
+
+Wlantest uses configuration files to load tests. Wlantest will be looking 
+for its configuration files in /etc/wlantest/. They must have a .cfg suffix.
+
+Allowed fields:
+==============
+[Description]
+- id_test : A unique ID which identify the test.
+- description : A short description of the test.
+
+[AP]
+- ssid : A string representation of an 802.11 SSID. If this field is not present,
+wlantest will use id_test as ssid.
+- hidden : Must be set to true if the AP is hidden, otherwise it can be ommited.
+- security : Security type, must be in {open, wpa-psk, wpa2-psk, wpa-eap, wpa2-eap}
+- mode : Radio mode, must be in {a, b, g}
+- channel : Channel frequency, must be choosen accordingly to mode.
+- method : EAP method, which is mandatory for wpa-eap or wpa2-eap security. It must be
+in {PEAP, TTLS}
+- phase2 : phase2 type for EAP tunneld methods, must be in {MSCHAPV2, MD5}
+- identity : The identity used in EAP authentification.
+- passphrase : Either wep key, wpa psk or eap password related to identity.
+
+[Connection]
+- type : The type of connection, must be in {manual, auto}
+- identity : The identity used to connect to EAP network.
+- passphrase : Either wep key, wpa psk or eap password used by the agent to connect.
+
+[Result]
+- state : Expected connman state after connect attempt. Must be in {idle, ready, online}
+- error : Expected connman connect error. If no error expected, must be set to None. 
+
