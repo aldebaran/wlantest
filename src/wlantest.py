@@ -47,38 +47,46 @@ class wlantest:
 
         if not 'ssid' in AP:
             AP['ssid'] = Description['id_test']
+        if not 'hidden' in AP:
+            AP['hidden'] = 'false'
 
         #APConfig
         if AP['security'] == 'open':
             self.hostapd.open(mode = AP['mode'], \
                             chan = AP['channel'], \
-                            ssid = AP['ssid'])
+                            ssid = AP['ssid'], \
+                            hidden = AP['hidden'])
         elif AP['security'] == 'wep':
             self.hostapd.wep(mode = AP['mode'], \
                             chan = AP['channel'], \
                             ssid = AP['ssid'], \
+                            hidden = AP['hidden'], \
                             passphrase = AP['passphrase'])
         elif AP['security'] == 'wpa-psk':
             self.hostapd.wpa_psk(mode = AP['mode'], \
                                 chan = AP['channel'], \
                                 ssid = AP['ssid'], \
+                                hidden = AP['hidden'], \
                                 passphrase = AP['passphrase'])
         elif AP['security'] == 'wpa2-psk':
             self.hostapd.wpa2_psk(mode = AP['mode'], \
                                 chan = AP['channel'], \
                                 ssid = AP['ssid'], \
+                                hidden = AP['hidden'], \
                                 passphrase = AP['passphrase'])
         elif AP['security'] == 'wpa-eap':
             self.hostapd.wpa_eap(mode = AP['mode'], \
                                 chan = AP['channel'], \
-                                ssid = AP['ssid'])
+                                ssid = AP['ssid'], \
+                                hidden = AP['hidden'])
             self.connman.setConfig(Name = AP['ssid'], \
                                 EAP = AP['method'], \
                                 Phase2 = AP['phase2'])
         elif AP['security'] == 'wpa2-eap':
             self.hostapd.wpa2_eap(mode = AP['mode'], \
                                 chan = AP['channel'], \
-                                ssid = AP['ssid'])
+                                ssid = AP['ssid'], \
+                                hidden = AP['hidden'])
             self.connman.setConfig(Name = AP['ssid'], \
                                 EAP = AP['method'], \
                                 Phase2 = AP['phase2'])
@@ -86,33 +94,68 @@ class wlantest:
         #Connecting
         if Connection['type'] == 'manual':
             self.connman.scan()
-            ServiceId = self.connman.getServiceId(AP['ssid'])
-            if AP['security'] == 'open':
-                self.connman.connect(ServiceId)
-            elif AP['security'] in ('wep', 'wpa-psk', 'wpa2-psk'):
-                self.connman.connect(ServiceId, \
-                                    passphrase = Connection['passphrase'])
-            elif AP['security'] in ('wpa-eap', 'wpa2-eap'):
-                self.connman.connect(ServiceId, \
-                                    passphrase = Connection['passphrase'], \
-                                    identity = Connection['identity'])
+            if AP['hidden'] == 'true':
+                ServiceId = self.connman.getServiceId('hidden')
+                if AP['security'] == 'open':
+                    self.connman.connect(ServiceId, \
+                                        name = AP['ssid'])
+                elif AP['security'] in ('wep', 'wpa-psk', 'wpa2-psk'):
+                    self.connman.connect(ServiceId, \
+                                        name = AP['ssid'], \
+                                        passphrase = Connection['passphrase'])
+                elif AP['security'] in ('wpa-eap', 'wpa2-eap'):
+                    self.connman.connect(ServiceId, \
+                                        name = AP['ssid'], \
+                                        passphrase = Connection['passphrase'], \
+                                        identity = Connection['identity'])
+            else:
+                ServiceId = self.connman.getServiceId(AP['ssid'])
+                if AP['security'] == 'open':
+                    self.connman.connect(ServiceId, \
+                                        name = AP['ssid'])
+                elif AP['security'] in ('wep', 'wpa-psk', 'wpa2-psk'):
+                    self.connman.connect(ServiceId, \
+                                        name = AP['ssid'], \
+                                        passphrase = Connection['passphrase'])
+                elif AP['security'] in ('wpa-eap', 'wpa2-eap'):
+                    self.connman.connect(ServiceId, \
+                                        name = AP['ssid'], \
+                                        passphrase = Connection['passphrase'], \
+                                        identity = Connection['identity'])
 
         elif Connection['type'] == 'auto':
-            if AP['security'] == 'open':
-                self.connman.setConfig(Name = AP['ssid'])
-            elif AP['security'] in ('wep', 'wpa-psk', 'wpa2-psk'):
-                self.connman.setConfig(Name = AP['ssid'], \
-                                    Passphrase = AP['passphrase'])
-            elif AP['security'] in ('wpa-eap', 'wpa2-eap'):
-                self.connman.setConfig(Name = AP['ssid'], \
-                                    EAP = AP['method'], \
-                                    Phase2 = AP['phase2'], \
-                                    Passphrase = Connection['passphrase'], \
-                                    Identity = Connection['identity'])
+            if AP['hidden'] == 'true':
+                if AP['security'] == 'open':
+                    self.connman.setConfig(Name = AP['ssid'], \
+                                        Hidden = AP['hidden'])
+                elif AP['security'] in ('wep', 'wpa-psk', 'wpa2-psk'):
+                    self.connman.setConfig(Name = AP['ssid'], \
+                                        Hidden = AP['hidden'], \
+                                        Passphrase = AP['passphrase'])
+                elif AP['security'] in ('wpa-eap', 'wpa2-eap'):
+                    self.connman.setConfig(Name = AP['ssid'], \
+                                        Hidden = AP['hidden'], \
+                                        EAP = AP['method'], \
+                                        Phase2 = AP['phase2'], \
+                                        Passphrase = Connection['passphrase'], \
+                                        Identity = Connection['identity'])
+            else:
+                if AP['security'] == 'open':
+                    self.connman.setConfig(Name = AP['ssid'])
+                elif AP['security'] in ('wep', 'wpa-psk', 'wpa2-psk'):
+                    self.connman.setConfig(Name = AP['ssid'], \
+                                        Passphrase = AP['passphrase'])
+                elif AP['security'] in ('wpa-eap', 'wpa2-eap'):
+                    self.connman.setConfig(Name = AP['ssid'], \
+                                        EAP = AP['method'], \
+                                        Phase2 = AP['phase2'], \
+                                        Passphrase = Connection['passphrase'], \
+                                        Identity = Connection['identity'])
+
             sleep(120)
-            ServiceId = self.connman.getServiceId(AP['ssid'])
 
         #Testing
+        ServiceId = self.connman.getServiceId(AP['ssid'])
         if self.connman.getState(ServiceId) == Result['state'] \
                 and str(self.connman.getConnectError()) == Result['error']:
             self.output.write('Test ' + Description['id_test'] + '\t[Ok]\n')

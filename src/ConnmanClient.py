@@ -123,6 +123,8 @@ class ConnmanClient:
         service = dbus.Interface(self.bus.get_object("net.connman", path),
                             "net.connman.Service")
 
+        if dict.has_key("name"):
+            self.agent.name = dict["name"]
         if dict.has_key("passphrase"):
             self.agent.passphrase = dict["passphrase"]
         if dict.has_key("identity"):
@@ -167,7 +169,7 @@ class ConnmanClient:
 
     def getServiceId(self, ServiceName):
         for path,properties in self.manager.GetServices(): 
-            if properties.get("Name", "") == ServiceName:
+            if properties.get("Name", "hidden") == ServiceName:
                 ServiceId = path[path.rfind("/") + 1:]
                 return ServiceId
 

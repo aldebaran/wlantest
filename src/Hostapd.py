@@ -40,6 +40,10 @@ class Config:
     def setMode(self, mode):
         self.set("hw_mode", mode)
 
+    def setHidden(self, bool):
+        if bool == 'true':
+            self.set("ignore_broadcast_ssid", "1")
+
     def set(self, key, value):
         self.config.write("%s=%s\n" %(key,value))
 
@@ -61,37 +65,40 @@ class Hostapd:
         self.proc = subprocess.Popen(self.cmd)
         sleep(3)
 
-    def open(self, mode, chan, ssid):
+    def open(self, mode, chan, ssid, hidden):
 
         config = Config()
 
         config.setMode(mode)
         config.setChannel(chan)
         config.set("ssid", ssid)
+        config.setHidden(hidden)
 
         config.close()
         self.reload()
 
-    def wep(self, mode, chan, ssid, passphrase):
+    def wep(self, mode, chan, ssid, hidden, passphrase):
 
         config = Config()
 
         config.setMode(mode)
         config.setChannel(chan)
         config.set("ssid", ssid)
+        config.setHidden(hidden)
         config.set("wep_default_key", "0")
         config.set("wep_key0", passphrase)
 
         config.close()
         self.reload()
 
-    def wpa_psk(self, mode, chan, ssid, passphrase):
+    def wpa_psk(self, mode, chan, ssid, hidden, passphrase):
 
         config = Config()
 
         config.setMode(mode)
         config.setChannel(chan)
         config.set("ssid", ssid)
+        config.setHidden(hidden)
         config.set("wpa", "1")
         config.set("wpa_passphrase", passphrase)
         config.set("wpa_key_mgmt", "WPA-PSK")
@@ -100,13 +107,14 @@ class Hostapd:
         config.close()
         self.reload()        
 
-    def wpa2_psk(self, mode, chan, ssid, passphrase):
+    def wpa2_psk(self, mode, chan, ssid, hidden, passphrase):
 
         config = Config()
 
         config.setMode(mode)
         config.setChannel(chan)
         config.set("ssid", ssid)
+        config.setHidden(hidden)
         config.set("wpa", "2")
         config.set("wpa_passphrase", passphrase)
         config.set("wpa_key_mgmt", "WPA-PSK")
@@ -115,13 +123,14 @@ class Hostapd:
         config.close()
         self.reload()        
 
-    def wpa_eap(self, mode, chan, ssid):
+    def wpa_eap(self, mode, chan, ssid, hidden):
          
         config = Config()
 
         config.setMode(mode)
         config.setChannel(chan)
         config.set("ssid", ssid)
+        config.setHidden(hidden)
         config.set("ieee8021x", "1")
         config.set("own_ip_addr", NAS_IP)
         config.set("auth_server_addr", RADIUS_IP)
@@ -134,13 +143,14 @@ class Hostapd:
         config.close()
         self.reload()
 
-    def wpa2_eap(self, mode, chan, ssid):
+    def wpa2_eap(self, mode, chan, ssid, hidden):
          
         config = Config()
 
         config.setMode(mode)
         config.setChannel(chan)
         config.set("ssid", ssid)
+        config.setHidden(hidden)
         config.set("ieee8021x", "1")
         config.set("own_ip_addr", NAS_IP)
         config.set("auth_server_addr", RADIUS_IP)
