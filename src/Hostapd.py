@@ -16,7 +16,6 @@ RADIUS_PORT = "1812"
 RADIUS_SECRET = "testing123"
 
 import subprocess
-import os,signal
 from time import sleep
 
 class Config:
@@ -35,10 +34,35 @@ class Config:
         self.setMode('g')
 
     def setChannel(self, chan):
+        self.chan = int(chan)
         self.set("channel", chan)
 
     def setMode(self, mode):
-        self.set("hw_mode", mode)
+        if mode in ('a', 'b' ,'g'):
+            self.set("hw_mode", mode)
+        elif mode == 'n':
+            self.set("ieee80211n", "1")
+            if self.chan in range(1,10):
+                self.set("hw_mode", "g")
+                self.set("ht_capab", "[GF][HT40+]")
+            elif self.chan in range(5,14):
+                self.set("hw_mode", "g")
+                self.set("ht_capab", "[GF][HT40-]")
+            elif self.chan in (36, 44):
+                self.set("hw_mode", "a")
+                self.set("ht_capab", "[GF][HT40+]")
+            elif self.chan in (40, 48):
+                self.set("hw_mode", "a")
+                self.set("ht_capab", "[GF][HT40-]")
+        elif mode == 'gn':
+            self.set("ieee80211n", "1")
+            self.set("hw_mode", "g")
+            if self.chan in range(1,10):
+                self.set("hw_mode", "g")
+                self.set("ht_capab", "[HT40+]")
+            elif self.chan in range(5,14):
+                self.set("hw_mode", "g")
+                self.set("ht_capab", "[HT40-]")
 
     def setHidden(self, bool):
         if bool == 'true':
@@ -69,8 +93,8 @@ class Hostapd:
 
         config = Config()
 
-        config.setMode(mode)
         config.setChannel(chan)
+        config.setMode(mode)
         config.set("ssid", ssid)
         config.setHidden(hidden)
 
@@ -81,8 +105,8 @@ class Hostapd:
 
         config = Config()
 
-        config.setMode(mode)
         config.setChannel(chan)
+        config.setMode(mode)
         config.set("ssid", ssid)
         config.setHidden(hidden)
         config.set("wep_default_key", "0")
@@ -95,8 +119,8 @@ class Hostapd:
 
         config = Config()
 
-        config.setMode(mode)
         config.setChannel(chan)
+        config.setMode(mode)
         config.set("ssid", ssid)
         config.setHidden(hidden)
         config.set("wpa", "1")
@@ -111,8 +135,8 @@ class Hostapd:
 
         config = Config()
 
-        config.setMode(mode)
         config.setChannel(chan)
+        config.setMode(mode)
         config.set("ssid", ssid)
         config.setHidden(hidden)
         config.set("wpa", "2")
@@ -127,8 +151,8 @@ class Hostapd:
          
         config = Config()
 
-        config.setMode(mode)
         config.setChannel(chan)
+        config.setMode(mode)
         config.set("ssid", ssid)
         config.setHidden(hidden)
         config.set("ieee8021x", "1")
@@ -147,8 +171,8 @@ class Hostapd:
          
         config = Config()
 
-        config.setMode(mode)
         config.setChannel(chan)
+        config.setMode(mode)
         config.set("ssid", ssid)
         config.setHidden(hidden)
         config.set("ieee8021x", "1")
@@ -164,12 +188,15 @@ class Hostapd:
         self.reload()
 
     def reload(self):
-        os.kill(self.proc.pid, signal.SIGHUP)
-        sleep(1)
+        # No SIGHUP to reload because of issues switching to wifi n
+       # os.kill(self.proc.pid, signal.SIGHUP)
+        self.kill()
+        self.proc = subprocess.Popen(self.cmd)
+        sleep(5)
 
     def kill(self):
-        os.kill(self.proc.pid, signal.SIGTERM)
-        sleep(1)
+        self.proc.terminate()
+        self.proc.wait()
 
 if (__name__ == "__main__"):
 

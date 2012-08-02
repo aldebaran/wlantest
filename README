@@ -27,7 +27,7 @@ Allowed fields:
 wlantest will use id_test as ssid.
 - hidden : Must be set to true if the AP is hidden, otherwise it can be ommited.
 - security : Security type, must be in {open, wpa-psk, wpa2-psk, wpa-eap, wpa2-eap}
-- mode : Radio mode, must be in {a, b, g}
+- mode : Radio mode, must be in {a, b, g, n, gn}
 - channel : Channel frequency, must be choosen accordingly to mode.
 - method : EAP method, which is mandatory for wpa-eap or wpa2-eap security. It must be
 in {PEAP, TTLS}
