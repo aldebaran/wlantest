@@ -124,7 +124,11 @@ class Hostapd:
         config.set("ssid", ssid)
         config.setHidden(hidden)
         config.set("wpa", "1")
-        config.set("wpa_passphrase", passphrase)
+        try:
+            passphrase = passphrase.split('"')[1]
+            config.set("wpa_passphrase", passphrase)
+        except IndexError:
+            config.set("wpa_psk", passphrase)
         config.set("wpa_key_mgmt", "WPA-PSK")
         config.set("wpa_pairwise", "TKIP")
 
@@ -140,7 +144,11 @@ class Hostapd:
         config.set("ssid", ssid)
         config.setHidden(hidden)
         config.set("wpa", "2")
-        config.set("wpa_passphrase", passphrase)
+        try:
+            passphrase = passphrase.split('"')[1]
+            config.set("wpa_passphrase", passphrase)
+        except IndexError:
+            config.set("wpa_psk", passphrase)
         config.set("wpa_key_mgmt", "WPA-PSK")
         config.set("wpa_pairwise", "CCMP")
 

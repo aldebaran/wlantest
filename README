@@ -33,7 +33,11 @@ wlantest will use id_test as ssid.
 in {PEAP, TTLS}
 - phase2 : phase2 type for EAP tunneld methods, must be in {MSCHAPV2, MD5}
 - identity : The identity used in EAP authentification.
-- passphrase : Either wep key, wpa psk or eap password related to identity.
+- passphrase : Either quoted string if passphrase or unquoted hexadecimal if raw key
+                If wep key (5, 13, or 16 characters passphrase or 10, 26, 32 digits key),
+                    or wpa key (8 to 63 characters passphrase or 64 digits key),
+                    or EAP password unquoted string.
+Examples : "vwxyz" (wep passphrase) or 123456789a (wep key) or "12345678" (wpa passphrase)
 
 [Connection]
 - type : The type of connection, must be in {manual, auto}
