@@ -196,7 +196,7 @@ class Hostapd:
         self.reload()
 
     def reload(self):
-        # No SIGHUP to reload because of issues switching to wifi n
+       # No SIGHUP to reload because of known issues (bug 396)
        # os.kill(self.proc.pid, signal.SIGHUP)
         self.kill()
         self.proc = subprocess.Popen(self.cmd)
