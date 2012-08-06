@@ -7,6 +7,7 @@
 ##
 
 CONF = "/var/lib/connman/connman.config"
+TIMEOUT = 90
 
 import ConfigParser
 
@@ -82,6 +83,16 @@ class Agent(dbus.service.Object):
     def Cancel(self):
         pass
 
+def property_changed(name, value, path):
+    """
+    Signal handler for property chaned
+    """
+    if name == "State":
+        val = str(value)
+        if val == 'ready':
+            loop.quit()
+            print "Autoconnect callback"
+
 class ConnmanClient:
     """
     Class to get information from ConnMan
@@ -114,6 +125,10 @@ class ConnmanClient:
         self.error = None
         print "Connect callback"
 
+    def handle_timeout(self):
+        loop.quit()
+        print "Autoconnect timeout"
+
     def scan(self):
         self.technology.Scan()
 
@@ -133,6 +148,19 @@ class ConnmanClient:
         service.Connect(timeout=60000,
                         reply_handler=self.handle_connect_reply,
                         error_handler=self.handle_connect_error)
+
+        global loop
+        loop = gobject.MainLoop()
+        loop.run()
+
+    def autoconnect(self):
+        gobject.timeout_add(1000*TIMEOUT, self.handle_timeout)
+
+        self.bus.add_signal_receiver(property_changed,
+            bus_name="net.connman",
+            dbus_interface="net.connman.Service",
+            signal_name="PropertyChanged",
+            path_keyword="path")
 
         global loop
         loop = gobject.MainLoop()
@@ -206,10 +234,4 @@ class ConnmanClient:
 
 if (__name__ == "__main__"):
     myConn = ConnmanClient()
-    ServiceId = myConn.getServiceId("wpa2rezo")
-    print ServiceId
-    myConn.connect(ServiceId)
-    if myConn.serviceisConnected(ServiceId):
-        print "Success"
-    else:
-        print "Fail"
+    myConn.autoconnect()

@@ -12,7 +12,6 @@ OUTPUT_FILE = '/var/log/wlantest.log'
 AUTO_TIMEOUT = 120
 
 import os
-from time import sleep
 import ConfigParser
 
 CONF_DIR = '/etc/wlantest'
@@ -152,7 +151,7 @@ class wlantest:
                                         Passphrase = Connection['passphrase'], \
                                         Identity = Connection['identity'])
 
-            sleep(120)
+            self.connman.autoconnect()
 
         #Testing
         ServiceId = self.connman.getServiceId(AP['ssid'])
