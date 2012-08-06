@@ -5,7 +5,7 @@ repository for automatic wireless tests
 
 * In order to run wlantest on OpenNao you need the following
 
-    hostapd >= 1.0 with defconfig
+    hostapd >= 1.0 with hostap/.config (CONFIG_IEEE80211N=y)
         Beware: Install it to /usr/bin and not default /usr/local/bin
 
     net-misc/dhcp (optional)
