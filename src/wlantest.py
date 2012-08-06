@@ -131,7 +131,7 @@ class wlantest:
                 elif AP['security'] in ('wep', 'wpa-psk', 'wpa2-psk'):
                     self.connman.setConfig(Name = AP['ssid'], \
                                         Hidden = AP['hidden'], \
-                                        Passphrase = AP['passphrase'])
+                                        Passphrase = Connection['passphrase'])
                 elif AP['security'] in ('wpa-eap', 'wpa2-eap'):
                     self.connman.setConfig(Name = AP['ssid'], \
                                         Hidden = AP['hidden'], \
@@ -144,7 +144,7 @@ class wlantest:
                     self.connman.setConfig(Name = AP['ssid'])
                 elif AP['security'] in ('wep', 'wpa-psk', 'wpa2-psk'):
                     self.connman.setConfig(Name = AP['ssid'], \
-                                        Passphrase = AP['passphrase'])
+                                        Passphrase = Connection['passphrase'])
                 elif AP['security'] in ('wpa-eap', 'wpa2-eap'):
                     self.connman.setConfig(Name = AP['ssid'], \
                                         EAP = AP['method'], \
