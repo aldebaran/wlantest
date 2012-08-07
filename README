@@ -18,6 +18,8 @@ for its configuration files in /etc/wlantest/. They must have a .cfg suffix.
 
 Allowed fields:
 ==============
+A value can either be a single item or coma-separated items.
+
 [Description]
 - description : A short description of the test.
 
@@ -39,11 +41,11 @@ in {PEAP, TTLS}
 Examples : "vwxyz" (wep passphrase) or 123456789a (wep key) or "12345678" (wpa passphrase)
 
 [Connection]
-- type : The type of connection, must be in {manual, auto}
+- mode : The mode of connection, must be in {manual, auto}
 - identity : The identity used to connect to EAP network.
 - passphrase : Either wep key, wpa psk or eap password used by the agent to connect.
 
 [Result]
 - state : Expected connman state after connect attempt. Must be in {idle, ready, online}
-- error : Expected connman connect error. If no error expected, must be set to None. 
+- error : Expected connman connect error. If no error expected, must be set to None.
 
