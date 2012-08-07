@@ -44,6 +44,8 @@ class wlantest:
         Connection.update(config.items('Connection'))
         Result.update(config.items('Result'))
 
+        # Default values
+        Description['id_test'] = file[:file.rfind('.')]
         if not 'ssid' in AP:
             AP['ssid'] = Description['id_test']
         if not 'hidden' in AP:

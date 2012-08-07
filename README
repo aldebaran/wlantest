@@ -19,7 +19,6 @@ for its configuration files in /etc/wlantest/. They must have a .cfg suffix.
 Allowed fields:
 ==============
 [Description]
-- id_test : A unique ID which identify the test.
 - description : A short description of the test.
 
 [AP]
