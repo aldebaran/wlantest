@@ -30,6 +30,7 @@ class wlantest:
 
     def run(self, file):
 
+        self.failflag = False
         d = getConfig(file)
 
         #APConfig
@@ -74,38 +75,42 @@ class wlantest:
                                 Phase2 = d['AP']['phase2'])
 
         #Connecting
-        if d['Client']['mode'] == 'manual':
+        if 'manual' in d['Client']['mode']:
             self.connman.scan()
+
             if d['AP']['hidden'] == 'true':
                 ServiceId = self.connman.getServiceId('hidden')
-                if d['AP']['security'] == 'open':
-                    self.connman.connect(ServiceId, \
-                                        name = d['AP']['ssid'])
-                elif d['AP']['security'] in ('wep', 'wpa-psk', 'wpa2-psk'):
-                    self.connman.connect(ServiceId, \
-                                        name = d['AP']['ssid'], \
-                                        passphrase = d['Client']['passphrase'])
-                elif d['AP']['security'] in ('wpa-eap', 'wpa2-eap'):
-                    self.connman.connect(ServiceId, \
-                                        name = d['AP']['ssid'], \
-                                        passphrase = d['Client']['passphrase'], \
-                                        identity = d['Client']['identity'])
             else:
                 ServiceId = self.connman.getServiceId(d['AP']['ssid'])
-                if d['AP']['security'] == 'open':
-                    self.connman.connect(ServiceId, \
-                                        name = d['AP']['ssid'])
-                elif d['AP']['security'] in ('wep', 'wpa-psk', 'wpa2-psk'):
-                    self.connman.connect(ServiceId, \
-                                        name = d['AP']['ssid'], \
-                                        passphrase = d['Client']['passphrase'])
-                elif d['AP']['security'] in ('wpa-eap', 'wpa2-eap'):
-                    self.connman.connect(ServiceId, \
-                                        name = d['AP']['ssid'], \
-                                        passphrase = d['Client']['passphrase'], \
-                                        identity = d['Client']['identity'])
 
-        elif d['Client']['mode'] == 'auto':
+            if d['AP']['security'] == 'open':
+                self.connman.connect(ServiceId, \
+                                    name = d['AP']['ssid'])
+            elif d['AP']['security'] in ('wep', 'wpa-psk', 'wpa2-psk'):
+                self.connman.connect(ServiceId, \
+                                    name = d['AP']['ssid'], \
+                                    passphrase = d['Client']['passphrase'])
+            elif d['AP']['security'] in ('wpa-eap', 'wpa2-eap'):
+                self.connman.connect(ServiceId, \
+                                    name = d['AP']['ssid'], \
+                                    passphrase = d['Client']['passphrase'], \
+                                    identity = d['Client']['identity'])
+
+            ServiceId = self.connman.getServiceId(d['AP']['ssid'])
+            self.test(ServiceId, d['Result'])
+
+            self.connman.disconnect(ServiceId)
+
+        if 'auto' in d['Client']['mode']:
+            # Reloading hostapd to allow the client to connect again
+            self.hostapd.reload(45)
+            self.connman.autoconnect()
+            ServiceId = self.connman.getServiceId(d['AP']['ssid'])
+            self.test(ServiceId, d['Result'])
+
+            self.connman.disconnect(ServiceId)
+
+        if 'provision' in d['Client']['mode']:
             if d['AP']['hidden'] == 'true':
                 if d['AP']['security'] == 'open':
                     self.connman.setConfig(Name = d['AP']['ssid'], \
@@ -135,25 +140,34 @@ class wlantest:
                                         Identity = d['Client']['identity'])
 
             self.connman.autoconnect()
+            ServiceId = self.connman.getServiceId(d['AP']['ssid'])
+            self.test(ServiceId, d['Result'])
 
-        #Testing
-        ServiceId = self.connman.getServiceId(d['AP']['ssid'])
-        if self.connman.getState(ServiceId) in d['Result']['state'] \
-                and str(self.connman.getConnectError()) in d['Result']['error']:
-            self.output.write('Test ' + d['Description']['id_test'] + '\t[Ok]\n')
-        else:
-            self.output.write('Test ' + d['Description']['id_test'] + '\t[Fail]\n')
-
-        #Disconnecting
-        self.connman.disconnect(ServiceId)
+        #Cleaning
         self.connman.clearConfig(d['AP']['ssid'])
         self.connman.remove(ServiceId)
+
+        #Output in logfile
+        if self.failflag == True:
+            self.output.write('Test ' + d['Description']['id_test'] + '\t[Fail]\n')
+        else:
+            self.output.write('Test ' + d['Description']['id_test'] + '\t[Ok]\n')
+
+    def test(self, ServiceId, Result):
+        if self.connman.getState(ServiceId) in Result['state'] \
+                and str(self.connman.getConnectError()) in Result['error']:
+            pass
+        else:
+            self.failflag = True
 
     def stop(self):
         self.hostapd.kill()
         self.output.close()
 
 def getConfig(file):
+    """
+    Method to parse a config file into a dictionnary
+    """
     conf = {}
 
     #Reading test file

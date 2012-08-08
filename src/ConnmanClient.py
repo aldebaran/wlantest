@@ -154,9 +154,9 @@ class ConnmanClient:
         loop.run()
 
     def autoconnect(self):
-        gobject.timeout_add(1000*TIMEOUT, self.handle_timeout)
+        timeout = gobject.timeout_add(1000*TIMEOUT, self.handle_timeout)
 
-        self.bus.add_signal_receiver(property_changed,
+        signal = self.bus.add_signal_receiver(property_changed,
             bus_name="net.connman",
             dbus_interface="net.connman.Service",
             signal_name="PropertyChanged",
@@ -165,6 +165,9 @@ class ConnmanClient:
         global loop
         loop = gobject.MainLoop()
         loop.run()
+
+        gobject.source_remove(timeout)
+        signal.remove()
 
     def disconnect(self, ServiceId):
 

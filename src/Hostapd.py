@@ -195,10 +195,11 @@ class Hostapd:
         config.close()
         self.reload()
 
-    def reload(self):
+    def reload(self, delay=0):
        # No SIGHUP to reload because of known issues (bug 396)
        # os.kill(self.proc.pid, signal.SIGHUP)
         self.kill()
+        sleep(delay)
         self.proc = subprocess.Popen(self.cmd)
         sleep(5)
 
