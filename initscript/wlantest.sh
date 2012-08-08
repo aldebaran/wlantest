@@ -16,6 +16,9 @@ ln -s /dev/urandom /dev/random
 #Loading virtual interfaces
 modprobe mac80211_hwsim
 
+#Setting up regulatory domain
+iw reg set FR
+
 #Setting up ip parameters
 ifconfig eth0 $IP_LOCAL
 ifconfig wlan1 $IP_AP
