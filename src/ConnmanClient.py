@@ -203,6 +203,7 @@ class ConnmanClient:
             if properties.get("Name", "hidden") == ServiceName:
                 ServiceId = path[path.rfind("/") + 1:]
                 return ServiceId
+        raise IOError('Service not found !')
 
     def getConnectError(self):
         error = self.error

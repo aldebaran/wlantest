@@ -78,37 +78,45 @@ class wlantest:
         if 'manual' in d['Client']['mode']:
             self.connman.scan()
 
-            if d['AP']['hidden'] == 'true':
-                ServiceId = self.connman.getServiceId('hidden')
+            try:
+                if d['AP']['hidden'] == 'true':
+                    ServiceId = self.connman.getServiceId('hidden')
+                else:
+                    ServiceId = self.connman.getServiceId(d['AP']['ssid'])
+            except IOError, e:
+                print e
+                self.failflag = True
             else:
+                if d['AP']['security'] == 'open':
+                    self.connman.connect(ServiceId, \
+                                        name = d['AP']['ssid'])
+                elif d['AP']['security'] in ('wep', 'wpa-psk', 'wpa2-psk'):
+                    self.connman.connect(ServiceId, \
+                                        name = d['AP']['ssid'], \
+                                        passphrase = d['Client']['passphrase'])
+                elif d['AP']['security'] in ('wpa-eap', 'wpa2-eap'):
+                    self.connman.connect(ServiceId, \
+                                        name = d['AP']['ssid'], \
+                                        passphrase = d['Client']['passphrase'], \
+                                        identity = d['Client']['identity'])
+
                 ServiceId = self.connman.getServiceId(d['AP']['ssid'])
-
-            if d['AP']['security'] == 'open':
-                self.connman.connect(ServiceId, \
-                                    name = d['AP']['ssid'])
-            elif d['AP']['security'] in ('wep', 'wpa-psk', 'wpa2-psk'):
-                self.connman.connect(ServiceId, \
-                                    name = d['AP']['ssid'], \
-                                    passphrase = d['Client']['passphrase'])
-            elif d['AP']['security'] in ('wpa-eap', 'wpa2-eap'):
-                self.connman.connect(ServiceId, \
-                                    name = d['AP']['ssid'], \
-                                    passphrase = d['Client']['passphrase'], \
-                                    identity = d['Client']['identity'])
-
-            ServiceId = self.connman.getServiceId(d['AP']['ssid'])
-            self.test(ServiceId, d['Result'])
-
-            self.connman.disconnect(ServiceId)
+                self.test(ServiceId, d['Result'])
+                self.connman.disconnect(ServiceId)
 
         if 'auto' in d['Client']['mode']:
             # Reloading hostapd to allow the client to connect again
             self.hostapd.reload(45)
             self.connman.autoconnect()
-            ServiceId = self.connman.getServiceId(d['AP']['ssid'])
-            self.test(ServiceId, d['Result'])
 
-            self.connman.disconnect(ServiceId)
+            try:
+                ServiceId = self.connman.getServiceId(d['AP']['ssid'])
+            except IOError, e:
+                print e
+                self.failflag = True
+            else:
+                self.test(ServiceId, d['Result'])
+                self.connman.disconnect(ServiceId)
 
         if 'provision' in d['Client']['mode']:
             if d['AP']['hidden'] == 'true':
@@ -140,12 +148,24 @@ class wlantest:
                                         Identity = d['Client']['identity'])
 
             self.connman.autoconnect()
-            ServiceId = self.connman.getServiceId(d['AP']['ssid'])
-            self.test(ServiceId, d['Result'])
+            try:
+                ServiceId = self.connman.getServiceId(d['AP']['ssid'])
+            except IOError, e:
+                print e
+                self.failflag = True
+            else:
+                self.test(ServiceId, d['Result'])
+                self.connman.disconnect(ServiceId)
 
         #Cleaning
         self.connman.clearConfig(d['AP']['ssid'])
-        self.connman.remove(ServiceId)
+        try:
+            ServiceId = self.connman.getServiceId(d['AP']['ssid'])
+        except IOError, e:
+            print e
+        else:
+            if d['AP']['security'] in ('open', 'wep', 'wpa-psk', 'wpa2-psk'):
+                self.connman.remove(ServiceId)
 
         #Output in logfile
         if self.failflag == True:
