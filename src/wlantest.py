@@ -111,40 +111,17 @@ class wlantest:
             self.hostapd.kill()
             sleep(15)
             self.hostapd.start()
-            self.connman.autoconnect()
 
-            try:
-                ServiceId = self.connman.getServiceId(d['AP']['ssid'])
-            except IOError, e:
-                print e
-                self.failflag = True
-            else:
-                self.test(ServiceId, d['Result'])
-                self.connman.disconnect(ServiceId)
-
-        if 'provision' in d['Client']['mode']:
-            if d['AP']['hidden'] == 'true':
-                if d['AP']['security'] == 'open':
-                    self.connman.setConfig(Name = d['AP']['ssid'], \
-                                        Hidden = d['AP']['hidden'])
-                elif d['AP']['security'] in ('wep', 'wpa-psk', 'wpa2-psk'):
-                    self.connman.setConfig(Name = d['AP']['ssid'], \
-                                        Hidden = d['AP']['hidden'], \
-                                        Passphrase = d['Client']['passphrase'])
-                elif d['AP']['security'] in ('wpa-eap', 'wpa2-eap'):
+            # For WPA-EAP, a full provision must be provided
+            if d['AP']['security'] in ('wpa-eap', 'wpa2-eap'):
+                if d['AP']['hidden'] == 'true':
                     self.connman.setConfig(Name = d['AP']['ssid'], \
                                         Hidden = d['AP']['hidden'], \
                                         EAP = d['AP']['method'], \
                                         Phase2 = d['AP']['phase2'], \
                                         Passphrase = d['Client']['passphrase'], \
                                         Identity = d['Client']['identity'])
-            else:
-                if d['AP']['security'] == 'open':
-                    self.connman.setConfig(Name = d['AP']['ssid'])
-                elif d['AP']['security'] in ('wep', 'wpa-psk', 'wpa2-psk'):
-                    self.connman.setConfig(Name = d['AP']['ssid'], \
-                                        Passphrase = d['Client']['passphrase'])
-                elif d['AP']['security'] in ('wpa-eap', 'wpa2-eap'):
+                else:
                     self.connman.setConfig(Name = d['AP']['ssid'], \
                                         EAP = d['AP']['method'], \
                                         Phase2 = d['AP']['phase2'], \
@@ -152,6 +129,7 @@ class wlantest:
                                         Identity = d['Client']['identity'])
 
             self.connman.autoconnect()
+
             try:
                 ServiceId = self.connman.getServiceId(d['AP']['ssid'])
             except IOError, e:
