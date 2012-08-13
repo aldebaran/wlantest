@@ -13,6 +13,7 @@ AUTO_TIMEOUT = 120
 
 import os
 import ConfigParser
+from time import sleep
 
 CONF_DIR = '/etc/wlantest'
 CONF_FILES = sorted(os.listdir(CONF_DIR))
@@ -100,13 +101,16 @@ class wlantest:
                                         passphrase = d['Client']['passphrase'], \
                                         identity = d['Client']['identity'])
 
+                sleep(15)
                 ServiceId = self.connman.getServiceId(d['AP']['ssid'])
                 self.test(ServiceId, d['Result'])
                 self.connman.disconnect(ServiceId)
 
         if 'auto' in d['Client']['mode']:
             # Reloading hostapd to allow the client to connect again
-            self.hostapd.reload(45)
+            self.hostapd.kill()
+            sleep(15)
+            self.hostapd.start()
             self.connman.autoconnect()
 
             try:

@@ -86,8 +86,7 @@ class Hostapd:
         config.close()
 
         self.cmd = ["hostapd", CONF_FILE]
-        self.proc = subprocess.Popen(self.cmd)
-        sleep(3)
+        self.start()
 
     def open(self, mode, chan, ssid, hidden):
 
@@ -195,11 +194,13 @@ class Hostapd:
         config.close()
         self.reload()
 
-    def reload(self, delay=0):
+    def reload(self):
        # No SIGHUP to reload because of known issues (bug 396)
        # os.kill(self.proc.pid, signal.SIGHUP)
         self.kill()
-        sleep(delay)
+        self.start()
+
+    def start(self):
         self.proc = subprocess.Popen(self.cmd)
         sleep(5)
 
