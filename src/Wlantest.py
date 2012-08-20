@@ -145,7 +145,7 @@ class Wlantest:
 
 def getConfig(test):
     """
-    Method to parse a config file into a dictionnary
+    Method to parse a wlantest config file into a dictionnary
     """
     conf = {}
 
@@ -159,7 +159,10 @@ def getConfig(test):
         for option in config.options(section):
             value = [v.strip() for v in config.get(section, option).split(',')]
             if len(value) == 1:
-                value = value[0]
+                if option == 'channel':
+                    value = int(value[0])
+                else:
+                    value = value[0]
             d[option] = value
         conf[section] = d
 
@@ -176,10 +179,10 @@ def getConfig(test):
     return conf
 
 def main():
-    mytest = Wlantest()
+    wlantest = Wlantest()
     for test in CONF_FILES:
-        mytest.run(test)
-    mytest.stop()
+        wlantest.run(test)
+    wlantest.stop()
     
 if (__name__ == "__main__"):
     main()

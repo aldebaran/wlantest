@@ -83,13 +83,13 @@ class Agent(dbus.service.Object):
     def Cancel(self):
         pass
 
-def property_changed(name, value, path):
+def property_changed(name, value):
     """
     Signal handler for property chaned
     """
     if name == "State":
         val = str(value)
-        if val == 'ready':
+        if val in ('ready', 'online'):
             loop.quit()
             print "Autoconnect callback"
 
@@ -125,25 +125,25 @@ class ConnmanClient:
         self.error = None
         print "Connect callback"
 
-    def handle_timeout(self):
+    def autoconnect_timeout(self):
         loop.quit()
         print "Autoconnect timeout"
 
     def scan(self):
         self.technology.Scan()
 
-    def connect(self, ServiceId, **dict):
+    def connect(self, ServiceId, **credentials):
         path = "/net/connman/service/" + ServiceId
 
         service = dbus.Interface(self.bus.get_object("net.connman", path),
                             "net.connman.Service")
 
-        if dict.has_key("name"):
-            self.agent.name = dict["name"]
-        if dict.has_key("passphrase"):
-            self.agent.passphrase = dict["passphrase"]
-        if dict.has_key("identity"):
-            self.agent.identity = dict["identity"]
+        if credentials.has_key("name"):
+            self.agent.name = credentials["name"]
+        if credentials.has_key("passphrase"):
+            self.agent.passphrase = credentials["passphrase"]
+        if credentials.has_key("identity"):
+            self.agent.identity = credentials["identity"]
 
         service.Connect(timeout=60000,
                         reply_handler=self.handle_connect_reply,
@@ -154,13 +154,12 @@ class ConnmanClient:
         loop.run()
 
     def autoconnect(self):
-        timeout = gobject.timeout_add(1000*TIMEOUT, self.handle_timeout)
+        timeout = gobject.timeout_add(1000*TIMEOUT, self.autoconnect_timeout)
 
         signal = self.bus.add_signal_receiver(property_changed,
             bus_name="net.connman",
             dbus_interface="net.connman.Service",
-            signal_name="PropertyChanged",
-            path_keyword="path")
+            signal_name="PropertyChanged")
 
         global loop
         loop = gobject.MainLoop()

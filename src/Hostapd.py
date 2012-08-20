@@ -61,17 +61,17 @@ class Hostapd:
         if hidden == 'true':
             config.set("ignore_broadcast_ssid", "1")
 
-        config.set("channel", channel)
+        config.set("channel", str(channel))
 
         if mode in ('a', 'b' ,'g'):
             config.set("hw_mode", mode)
         elif mode == 'n':
             config.set("ieee80211n", "1")
 
-            if int(channel) in range(1,14):
+            if channel in range(1,14):
                 config.set("hw_mode", "g")
                 config.set("ht_capab", "[GF]")
-            elif int(channel) in range (36,48):
+            elif channel in range (36,48):
                 config.set("hw_mode", "a")
                 if channelposition == 'upper':
                     config.set("ht_capab", "[GF][HT40-]")
@@ -147,7 +147,8 @@ class Hostapd:
 if (__name__ == "__main__"):
 
     myhost = Hostapd()
-    myhost.wpa2_psk(mode = 'g', \
-                channel = '4', \
-                ssid = 'serious_ssid', \
-                passphrase = '12345678')
+    myhost.setConfig(security = 'wpa2-psk', \
+                    mode = 'g', \
+                    channel = 4, \
+                    ssid = 'serious_ssid', \
+                    passphrase = '12345678')
