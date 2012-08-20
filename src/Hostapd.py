@@ -18,9 +18,9 @@ RADIUS_SECRET = "testing123"
 import subprocess
 from time import sleep
 
-class Config:
+class HostapdConfig:
     """
-    Class to write conf file
+    Class to write conf file for hostapd
     """
 
     def __init__(self):
@@ -28,45 +28,6 @@ class Config:
         # Set shared settings
         self.set("interface", IFACE)
         self.set("driver", DRIVER)
-
-    def default(self):
-        self.setChannel('11')
-        self.setMode('g')
-
-    def setChannel(self, chan):
-        self.chan = int(chan)
-        self.set("channel", chan)
-
-    def setMode(self, mode):
-        if mode in ('a', 'b' ,'g'):
-            self.set("hw_mode", mode)
-        elif mode == 'n':
-            self.set("ieee80211n", "1")
-            if self.chan in range(1,10):
-                self.set("hw_mode", "g")
-                self.set("ht_capab", "[GF][HT40+]")
-            elif self.chan in range(5,14):
-                self.set("hw_mode", "g")
-                self.set("ht_capab", "[GF][HT40-]")
-            elif self.chan in (36, 44):
-                self.set("hw_mode", "a")
-                self.set("ht_capab", "[GF][HT40+]")
-            elif self.chan in (40, 48):
-                self.set("hw_mode", "a")
-                self.set("ht_capab", "[GF][HT40-]")
-        elif mode == 'gn':
-            self.set("ieee80211n", "1")
-            self.set("hw_mode", "g")
-            if self.chan in range(1,10):
-                self.set("hw_mode", "g")
-                self.set("ht_capab", "[HT40+]")
-            elif self.chan in range(5,14):
-                self.set("hw_mode", "g")
-                self.set("ht_capab", "[HT40-]")
-
-    def setHidden(self, bool):
-        if bool == 'true':
-            self.set("ignore_broadcast_ssid", "1")
 
     def set(self, key, value):
         self.config.write("%s=%s\n" %(key,value))
@@ -81,115 +42,90 @@ class Hostapd:
 
     def __init__(self):
         # Set default config to let hostapd start
-        config = Config()
-        config.default()
-        config.close()
+        self.setDefaultConfig()
 
         self.cmd = ["hostapd", CONF_FILE]
         self.start()
 
-    def open(self, mode, chan, ssid, hidden):
-
-        config = Config()
-
-        config.setChannel(chan)
-        config.setMode(mode)
-        config.set("ssid", ssid)
-        config.setHidden(hidden)
-
+    def setDefaultConfig(self):
+        config = HostapdConfig()
+        config.set("channel", "1")
+        config.set("hw_mode", "g")
         config.close()
-        self.reload()
 
-    def wep(self, mode, chan, ssid, hidden, passphrase):
+    def setConfig(self, security, passphrase, identity, mode, channel, channelposition, ssid, hidden):
+        config = HostapdConfig()
 
-        config = Config()
-
-        config.setChannel(chan)
-        config.setMode(mode)
+        # Radio settings
         config.set("ssid", ssid)
-        config.setHidden(hidden)
-        config.set("wep_default_key", "0")
-        config.set("wep_key0", passphrase)
+        if hidden == 'true':
+            config.set("ignore_broadcast_ssid", "1")
 
-        config.close()
-        self.reload()
+        config.set("channel", channel)
 
-    def wpa_psk(self, mode, chan, ssid, hidden, passphrase):
+        if mode in ('a', 'b' ,'g'):
+            config.set("hw_mode", mode)
+        elif mode == 'n':
+            config.set("ieee80211n", "1")
 
-        config = Config()
+            if int(channel) in range(1,14):
+                config.set("hw_mode", "g")
+                config.set("ht_capab", "[GF]")
+            elif int(channel) in range (36,48):
+                config.set("hw_mode", "a")
+                if channelposition == 'upper':
+                    config.set("ht_capab", "[GF][HT40-]")
+                elif channelposition == 'lower':
+                    config.set("ht_capab", "[GF][HT40+]")
 
-        config.setChannel(chan)
-        config.setMode(mode)
-        config.set("ssid", ssid)
-        config.setHidden(hidden)
-        config.set("wpa", "1")
-        try:
-            passphrase = passphrase.split('"')[1]
-            config.set("wpa_passphrase", passphrase)
-        except IndexError:
-            config.set("wpa_psk", passphrase)
-        config.set("wpa_key_mgmt", "WPA-PSK")
-        config.set("wpa_pairwise", "TKIP")
+        elif mode == 'gn':
+            config.set("ieee80211n", "1")
+            config.set("hw_mode", "g")
 
-        config.close()
-        self.reload()        
+        # Security settings
+        if security == 'wep':
+            config.set("wep_default_key", "0")
+            config.set("wep_key0", passphrase)
 
-    def wpa2_psk(self, mode, chan, ssid, hidden, passphrase):
+        elif security == 'wpa-psk':
+            config.set("wpa", "1")
+            try:
+                passphrase = passphrase.split('"')[1]
+                config.set("wpa_passphrase", passphrase)
+            except IndexError:
+                config.set("wpa_psk", passphrase)
+            config.set("wpa_key_mgmt", "WPA-PSK")
+            config.set("wpa_pairwise", "TKIP")
 
-        config = Config()
+        elif security == 'wpa2-psk':
+            config.set("wpa", "2")
+            try:
+                passphrase = passphrase.split('"')[1]
+                config.set("wpa_passphrase", passphrase)
+            except IndexError:
+                config.set("wpa_psk", passphrase)
+            config.set("wpa_key_mgmt", "WPA-PSK")
+            config.set("wpa_pairwise", "CCMP")
 
-        config.setChannel(chan)
-        config.setMode(mode)
-        config.set("ssid", ssid)
-        config.setHidden(hidden)
-        config.set("wpa", "2")
-        try:
-            passphrase = passphrase.split('"')[1]
-            config.set("wpa_passphrase", passphrase)
-        except IndexError:
-            config.set("wpa_psk", passphrase)
-        config.set("wpa_key_mgmt", "WPA-PSK")
-        config.set("wpa_pairwise", "CCMP")
+        elif security == 'wpa-eap':
+            config.set("ieee8021x", "1")
+            config.set("own_ip_addr", NAS_IP)
+            config.set("auth_server_addr", RADIUS_IP)
+            config.set("auth_server_port", RADIUS_PORT)
+            config.set("auth_server_shared_secret", RADIUS_SECRET)
+            config.set("wpa", "1")
+            config.set("wpa_key_mgmt", "WPA-EAP")
+            config.set("wpa_pairwise", "TKIP")
 
-        config.close()
-        self.reload()        
-
-    def wpa_eap(self, mode, chan, ssid, hidden):
-         
-        config = Config()
-
-        config.setChannel(chan)
-        config.setMode(mode)
-        config.set("ssid", ssid)
-        config.setHidden(hidden)
-        config.set("ieee8021x", "1")
-        config.set("own_ip_addr", NAS_IP)
-        config.set("auth_server_addr", RADIUS_IP)
-        config.set("auth_server_port", RADIUS_PORT)
-        config.set("auth_server_shared_secret", RADIUS_SECRET)
-        config.set("wpa", "1")
-        config.set("wpa_key_mgmt", "WPA-EAP")
-        config.set("wpa_pairwise", "TKIP")
-
-        config.close()
-        self.reload()
-
-    def wpa2_eap(self, mode, chan, ssid, hidden):
-         
-        config = Config()
-
-        config.setChannel(chan)
-        config.setMode(mode)
-        config.set("ssid", ssid)
-        config.setHidden(hidden)
-        config.set("ieee8021x", "1")
-        config.set("own_ip_addr", NAS_IP)
-        config.set("auth_server_addr", RADIUS_IP)
-        config.set("auth_server_port", RADIUS_PORT)
-        config.set("auth_server_shared_secret", RADIUS_SECRET)
-        config.set("wpa", "2")
-        config.set("wpa_key_mgmt", "WPA-EAP")
-        config.set("wpa_pairwise", "CCMP")
+        elif security == 'wpa2-eap':
+            config.set("ieee8021x", "1")
+            config.set("own_ip_addr", NAS_IP)
+            config.set("auth_server_addr", RADIUS_IP)
+            config.set("auth_server_port", RADIUS_PORT)
+            config.set("auth_server_shared_secret", RADIUS_SECRET)
+            config.set("wpa", "2")
+            config.set("wpa_key_mgmt", "WPA-EAP")
+            config.set("wpa_pairwise", "CCMP")
 
         config.close()
         self.reload()
@@ -212,6 +148,6 @@ if (__name__ == "__main__"):
 
     myhost = Hostapd()
     myhost.wpa2_psk(mode = 'g', \
-                chan = '4', \
-                ssid = 'Ohyeah', \
+                channel = '4', \
+                ssid = 'serious_ssid', \
                 passphrase = '12345678')

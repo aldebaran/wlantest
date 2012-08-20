@@ -30,6 +30,8 @@ wlantest will use id_test as ssid.
 - security : Security type, must be in {open, wpa-psk, wpa2-psk, wpa-eap, wpa2-eap}
 - mode : Radio mode, must be in {a, b, g, n, gn}
 - channel : Channel frequency, must be choosen accordingly to mode.
+- channelposition : Channel position, must be upper or lower. It is mandatory for 40Mhz 
+bandwith. If not set, 20Mhz bandwith operation.  
 - method : EAP method, which is mandatory for wpa-eap or wpa2-eap security. It must be
 in {PEAP, TTLS}
 - phase2 : phase2 type for EAP tunneld methods, must be in {MSCHAPV2, MD5}
