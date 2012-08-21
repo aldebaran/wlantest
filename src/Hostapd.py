@@ -7,6 +7,8 @@
 ##
 
 CONF_FILE = "/etc/hostapd.conf"
+ENTROPY_FILE = "/var/run/wlantest/hostapd.entropy"
+
 IFACE = "wlan1"
 DRIVER = "nl80211"
 
@@ -44,7 +46,7 @@ class Hostapd:
         # Set default config to let hostapd start
         self.setDefaultConfig()
 
-        self.cmd = ["hostapd", CONF_FILE]
+        self.cmd = ["hostapd", CONF_FILE, "-e", ENTROPY_FILE]
         self.start()
 
     def setDefaultConfig(self):

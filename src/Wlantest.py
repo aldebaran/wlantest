@@ -18,12 +18,20 @@ from time import sleep
 CONF_DIR = '/etc/wlantest'
 CONF_FILES = sorted(os.listdir(CONF_DIR))
 
+RUN_DIR = '/var/run/wlantest'
+
 from ConnmanClient import ConnmanClient
 from Hostapd import Hostapd
 
 class Wlantest:
 
     def __init__(self):
+
+        try:
+            os.mkdir(RUN_DIR)
+        except OSError, e:
+            print e
+
         self.connman = ConnmanClient()
         self.hostapd = Hostapd()
 
