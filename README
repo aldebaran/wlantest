@@ -1,17 +1,65 @@
-repository for automatic wireless tests
+*********
+Abstract
+*********
+Wlantest is an automatic wireless testing script written in Python which aims at checking 
+connman behaviour.
+
+For every test, Wlantest runs hostapd on an interface according to a config file and try
+to connect to it using connman. The result is output in a text file. 
+
+
+********
+Install
+********
+Wlantest is packaged using Python disutils.
 
 * To generate source distribution package
     python setup.py sdist
 
-* In order to run wlantest on OpenNao you need the following
+* To install from tarball
+    python setup.py install
 
-    hostapd >= 1.0 with hostap/.config (CONFIG_IEEE80211N=y)
-        Beware: Install it to /usr/bin and not default /usr/local/bin
+* In order to run wlantest you need the following
 
-    net-misc/dhcp (optional)
+    hostapd >= 1.0 (optionally built with CONFIG_IEEE80211N=y)
 
+    dhcpd (optional)
+
+    freeradius (optional)
+
+
+********************
+Testing environment
+********************
+
+The minimum testing requirement is a machine with two wlan interfaces:
+- An interface used in AP mode on which hostapd is running
+- An interface used in STA mode that connman operates
+
+Extra setup may be composed of:
+- A radius server to test WPA-EAP
+- A dhcpd to speed up connman connection process
+
+Here is an example of our test environment:
+
+             ---------------------- 
+            |     Test Machine     |
+            |        --------------|
+            |       |mac80211_hwsim|
+            |       |              |
+            |       |       wlan0--|        --------------- 
+            |       |        (STA) |       | Radius Server |
+            |       |              |       |               |
+            |       |       wlan1--|       |               |
+            | eth0  |        (AP)  |       |     eth0      |
+             ---|------------------         -------|-------
+                |__________________________________|
+
+
+
+****************************************
 Wlantest configuration test file format
-***************************************
+****************************************
 
 Wlantest uses configuration files to load tests. Wlantest will be looking 
 for its configuration files in /etc/wlantest/. They must have a .cfg suffix.
