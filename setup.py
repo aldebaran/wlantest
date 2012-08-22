@@ -5,7 +5,8 @@ from glob import glob
 
 setup(name='wlantest',
         version='0.1',
-        description='Python script for ConnMan testing',
+        license='GPLv2',
+        description='Automatic wireless testing for Connman',
         author='Maxence Viallon',
         author_email='mviallon@aldebaran-robotics.com',
         packages=['wlantest'],
