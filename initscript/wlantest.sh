@@ -20,5 +20,5 @@ ifconfig eth0 $IP_LOCAL
 ifconfig wlan1 $IP_AP
 
 #Starting dhcpd
-dhcpd
+dhcpd -cf /etc/wlantest/dhcpd.conf
 

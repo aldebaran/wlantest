@@ -11,6 +11,7 @@ setup(name='wlantest',
         author_email='mviallon@aldebaran-robotics.com',
         packages=['wlantest'],
         package_dir={'wlantest': 'src'},
-        data_files=[('/etc/wlantest', glob('cfg/*.cfg'))],
+        data_files=[('/etc/wlantest', glob('cfg/*.cfg')),
+                    ('/etc/wlantest', ['initscript/dhcpd.conf'])],
         scripts=['wlantest']
     )
