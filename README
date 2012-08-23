@@ -4,14 +4,14 @@ Abstract
 Wlantest is an automatic wireless testing script written in Python which aims at checking 
 connman behaviour.
 
-For every test, Wlantest runs hostapd on an interface according to a config file and try
+For every test, Wlantest runs hostapd on an interface according to a config file and tries
 to connect to it using connman. The result is output in a text file. 
 
 
 ********
 Install
 ********
-Wlantest is packaged using Python disutils.
+Wlantest is packaged using Python distutils.
 
 * To generate source distribution package
     python setup.py sdist
@@ -26,6 +26,20 @@ Wlantest is packaged using Python disutils.
     dhcpd (optional)
 
     freeradius (optional)
+
+
+***********
+Misc notes
+***********
+
+* There are a few parameters in /etc/wlantest/main.conf which have to be set before
+running Wlantest.
+
+* Connman should be launched with -I <iface> where iface is the interface which will run
+the AP.
+
+* If a dhcpd is running, do not forget to set up an ip address to the AP interface so
+that the dhcpd can listen on it.
 
 
 ********************
@@ -55,6 +69,7 @@ Here is an example of our test environment:
              ---|------------------         -------|-------
                 |__________________________________|
 
+The script used to setup the above test environnment is supplied FYI in initscript/wlantest.sh
 
 
 ****************************************
@@ -85,7 +100,7 @@ in {PEAP, TTLS}
 - phase2 : phase2 type for EAP tunneld methods, must be in {MSCHAPV2, MD5}
 - identity : The identity used in EAP authentification.
 - passphrase : Either quoted string if passphrase or unquoted hexadecimal if raw key
-                If wep key (5, 13, or 16 characters passphrase or 10, 26, 32 digits key),
+                If wep key (5 or 13 characters passphrase, or 10 or 26 digits key),
                     or wpa key (8 to 63 characters passphrase or 64 digits key),
                     or EAP password unquoted string.
 Examples : "vwxyz" (wep passphrase) or 123456789a (wep key) or "12345678" (wpa passphrase)
