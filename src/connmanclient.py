@@ -205,12 +205,12 @@ class ConnmanClient:
             print "%s: %s" % (error._dbus_error_name, error.message)
 
     def getState(self, ServiceId):
-        for path,properties in self.manager.GetServices(): 
+        for path,properties in self.manager.GetServices():
             if path == "/net/connman/service/" + ServiceId:
                     return properties["State"]
 
     def getServiceId(self, ServiceName):
-        for path,properties in self.manager.GetServices(): 
+        for path,properties in self.manager.GetServices():
             if properties.get("Name", "hidden") == ServiceName:
                 ServiceId = path[path.rfind("/") + 1:]
                 return ServiceId
@@ -225,7 +225,7 @@ class ConnmanClient:
         config = ConfigParser.RawConfigParser()
         config.optionxform = str
         config.read(CONF_FILE)
-        
+
         section = "service_"+param['Name']
         config.remove_section(section)
         config.add_section(section)

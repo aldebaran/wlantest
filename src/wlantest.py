@@ -23,15 +23,15 @@ from time import sleep
 import ConfigParser
 from collections import namedtuple
 
-MAIN_CONF = 'etc/wlantest/main.conf'
+MAIN_CONF = '/etc/wlantest/main.conf'
 CONF_DIR = '/etc/wlantest/cfg'
 CONF_FILES = sorted(os.listdir(CONF_DIR))
 
 RUN_DIR = '/var/run/wlantest'
 OUTPUT_FILE = '/var/log/wlantest.log'
 
-from ConnmanClient import ConnmanClient
-from Hostapd import Hostapd
+from connmanclient import ConnmanClient
+from hostapd import Hostapd
 
 wlantest_settings = namedtuple('wlantest_settings', ['ap_iface', 'nas_ip', 'radius_ip', \
     'radius_port', 'radius_secret', 'autoconnect_timeout'])
@@ -93,7 +93,7 @@ class Wlantest:
                 if config['AP']['security'] == 'open':
                     self.connman.connect(ServiceId, \
                                         name = config['AP']['ssid'])
-                        
+
                 elif config['AP']['security'] in ('wep', 'wpa-psk', 'wpa2-psk'):
                     self.connman.connect(ServiceId, \
                                         name = config['AP']['ssid'], \
@@ -259,6 +259,6 @@ def main():
         wlantest.run(test)
 
     wlantest.stop()
-    
+
 if (__name__ == "__main__"):
     main()
