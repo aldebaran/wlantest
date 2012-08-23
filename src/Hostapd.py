@@ -17,16 +17,8 @@
 ##  along with this program; if not, write to the Free Software
 ##  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ##
-CONF_FILE = "/etc/hostapd.conf"
+CONF_FILE = "/var/run/wlantest/hostapd.conf"
 ENTROPY_FILE = "/var/run/wlantest/hostapd.entropy"
-
-IFACE = "wlan1"
-DRIVER = "nl80211"
-
-NAS_IP = "192.168.2.2"
-RADIUS_IP = "192.168.2.3"
-RADIUS_PORT = "1812"
-RADIUS_SECRET = "testing123"
 
 import subprocess
 from time import sleep
@@ -36,11 +28,11 @@ class HostapdConfig:
     Class to write conf file for hostapd
     """
 
-    def __init__(self):
+    def __init__(self, interface):
         self.config = open (CONF_FILE, "w+")
         # Set shared settings
-        self.set("interface", IFACE)
-        self.set("driver", DRIVER)
+        self.set("interface", interface)
+        self.set("driver", 'nl80211')
 
     def set(self, key, value):
         self.config.write("%s=%s\n" %(key,value))
@@ -53,7 +45,13 @@ class Hostapd:
     Class to manage hostapd
     """
 
-    def __init__(self):
+    def __init__(self, interface, nas_ip, radius_ip, radius_port, radius_secret):
+        self.interface = interface
+        self.nas_ip = nas_ip
+        self.radius_ip = radius_ip
+        self.radius_port = radius_port
+        self.radius_secret = radius_secret
+
         # Set default config to let hostapd start
         self.setDefaultConfig()
 
@@ -61,13 +59,13 @@ class Hostapd:
         self.start()
 
     def setDefaultConfig(self):
-        config = HostapdConfig()
+        config = HostapdConfig(self.interface)
         config.set("channel", "1")
         config.set("hw_mode", "g")
         config.close()
 
     def setConfig(self, security, passphrase, identity, mode, channel, channelposition, ssid, hidden):
-        config = HostapdConfig()
+        config = HostapdConfig(self.interface)
 
         # Radio settings
         config.set("ssid", ssid)
@@ -122,20 +120,20 @@ class Hostapd:
 
         elif security == 'wpa-eap':
             config.set("ieee8021x", "1")
-            config.set("own_ip_addr", NAS_IP)
-            config.set("auth_server_addr", RADIUS_IP)
-            config.set("auth_server_port", RADIUS_PORT)
-            config.set("auth_server_shared_secret", RADIUS_SECRET)
+            config.set("own_ip_addr", self.nas_ip)
+            config.set("auth_server_addr", self.radius_ip)
+            config.set("auth_server_port", self.radius_port)
+            config.set("auth_server_shared_secret", self.radius_secret)
             config.set("wpa", "1")
             config.set("wpa_key_mgmt", "WPA-EAP")
             config.set("wpa_pairwise", "TKIP")
 
         elif security == 'wpa2-eap':
             config.set("ieee8021x", "1")
-            config.set("own_ip_addr", NAS_IP)
-            config.set("auth_server_addr", RADIUS_IP)
-            config.set("auth_server_port", RADIUS_PORT)
-            config.set("auth_server_shared_secret", RADIUS_SECRET)
+            config.set("own_ip_addr", self.nas_ip)
+            config.set("auth_server_addr", self.radius_ip)
+            config.set("auth_server_port", self.radius_port)
+            config.set("auth_server_shared_secret", self.radius_secret)
             config.set("wpa", "2")
             config.set("wpa_key_mgmt", "WPA-EAP")
             config.set("wpa_pairwise", "CCMP")

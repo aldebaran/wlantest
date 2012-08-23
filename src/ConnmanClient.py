@@ -17,8 +17,7 @@
 ##  along with this program; if not, write to the Free Software
 ##  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ##
-CONF = "/var/lib/connman/connman.config"
-TIMEOUT = 90
+CONF_FILE = "/var/lib/connman/connman.config"
 
 import ConfigParser
 
@@ -109,7 +108,7 @@ class ConnmanClient:
     Class to get information from ConnMan
     """
 
-    def __init__(self):
+    def __init__(self, autoconnect_timeout):
 
         # Setting up bus
         dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
@@ -124,6 +123,8 @@ class ConnmanClient:
         self.agent = Agent(self.bus, agentpath)
         self.manager.RegisterAgent(agentpath)
 
+        # Variables
+        self.autoconnect_timeout = autoconnect_timeout
         self.error = None
 
     def handle_connect_error(self, error):
@@ -136,7 +137,7 @@ class ConnmanClient:
         self.error = None
         print "Connect callback"
 
-    def autoconnect_timeout(self):
+    def autoconnect_timeout_reply(self):
         loop.quit()
         print "Autoconnect timeout"
 
@@ -165,7 +166,7 @@ class ConnmanClient:
         loop.run()
 
     def autoconnect(self):
-        timeout = gobject.timeout_add(1000*TIMEOUT, self.autoconnect_timeout)
+        timeout = gobject.timeout_add(1000*self.autoconnect_timeout, self.autoconnect_timeout_reply)
 
         signal = self.bus.add_signal_receiver(property_changed,
             bus_name="net.connman",
@@ -223,7 +224,7 @@ class ConnmanClient:
     def setConfig(self, **param):
         config = ConfigParser.RawConfigParser()
         config.optionxform = str
-        config.read(CONF)
+        config.read(CONF_FILE)
         
         section = "service_"+param['Name']
         config.remove_section(section)
@@ -233,17 +234,17 @@ class ConnmanClient:
             if param.has_key(item):
                 config.set(section, item, param[item])
 
-        with open(CONF, 'w') as configfile:
+        with open(CONF_FILE, 'w') as configfile:
             config.write(configfile)
 
     def clearConfig(self, name):
         config = ConfigParser.RawConfigParser()
-        config.read(CONF)
+        config.read(CONF_FILE)
 
         section = "service_"+name
         config.remove_section(section)
 
-        with open(CONF, 'w') as configfile:
+        with open(CONF_FILE, 'w') as configfile:
             config.write(configfile)
 
 if (__name__ == "__main__"):

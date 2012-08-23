@@ -17,32 +17,42 @@
 ##  along with this program; if not, write to the Free Software
 ##  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ##
-OUTPUT_FILE = '/var/log/wlantest.log'
-AUTO_TIMEOUT = 120
-
 import os
-import ConfigParser
 from time import sleep
 
-CONF_DIR = '/etc/wlantest'
+import ConfigParser
+from collections import namedtuple
+
+MAIN_CONF = 'etc/wlantest/main.conf'
+CONF_DIR = '/etc/wlantest/cfg'
 CONF_FILES = sorted(os.listdir(CONF_DIR))
 
 RUN_DIR = '/var/run/wlantest'
+OUTPUT_FILE = '/var/log/wlantest.log'
 
 from ConnmanClient import ConnmanClient
 from Hostapd import Hostapd
 
+wlantest_settings = namedtuple('wlantest_settings', ['ap_iface', 'nas_ip', 'radius_ip', \
+    'radius_port', 'radius_secret', 'autoconnect_timeout'])
+
 class Wlantest:
 
-    def __init__(self):
+    def __init__(self, config_file):
 
         try:
             os.mkdir(RUN_DIR)
         except OSError, e:
             print e
 
-        self.connman = ConnmanClient()
-        self.hostapd = Hostapd()
+        settings = parseMainConfig(config_file)
+
+        self.connman = ConnmanClient(autoconnect_timeout = settings.autoconnect_timeout)
+        self.hostapd = Hostapd(interface = settings.ap_iface,
+                                nas_ip = settings.nas_ip,
+                                radius_ip = settings.radius_ip,
+                                radius_port = settings.radius_port,
+                                radius_secret = settings.radius_secret)
 
         self.resultFile = open(OUTPUT_FILE, 'w')
 
@@ -160,15 +170,21 @@ class Wlantest:
         self.hostapd.kill()
         self.resultFile.close()
 
+def loadConfig(configfile):
+    """
+    Method to load a config file into ConfigParser
+    """
+    config = ConfigParser.RawConfigParser()
+    config.read(configfile)
+    return config
+
 def getConfig(test):
     """
     Method to parse a wlantest config file into a dictionnary
     """
     conf = {}
 
-    #Reading test file
-    config = ConfigParser.RawConfigParser()
-    config.read(CONF_DIR + '/' + test)
+    config = loadConfig(CONF_DIR + '/' + test)
 
     #Parsing file to dictionary
     for section in config.sections():
@@ -195,10 +211,53 @@ def getConfig(test):
 
     return conf
 
+def parseMainConfig(mainconfig):
+    """
+    Method to parse wlantest main config
+    """
+    config = loadConfig(mainconfig)
+
+    try:
+        ap_iface = config.get('general', 'APInterface')
+    except ConfigParser.NoOptionError, e:
+        ap_iface = 'wlan0'
+        print e
+    try:
+        nas_ip = config.get('general', 'NAS_IP')
+    except ConfigParser.NoOptionError, e:
+        nas_ip = '192.168.2.4'
+        print e
+    try:
+        radius_ip = config.get('general', 'RADIUS_IP')
+    except ConfigParser.NoOptionError, e:
+        radius_ip = '192.168.2.3'
+        print e
+    try:
+        radius_port = config.get('general', 'RADIUS_PORT')
+    except ConfigParser.NoOptionError, e:
+        radius_port = '1812'
+        print e
+    try:
+        radius_secret = config.get('general', 'RADIUS_SECRET')
+    except ConfigParser.NoOptionError, e:
+        radius_secret = 'testing123'
+        print e
+    try:
+        autoconnect_timeout = int(config.get('general', 'AutoconnectTimeout'))
+    except ConfigParser.NoOptionError, e:
+        autoconnect_timeout = 90
+        print e
+
+    settings = wlantest_settings(ap_iface, nas_ip, radius_ip, radius_port, radius_secret, autoconnect_timeout)
+
+    return settings
+
 def main():
-    wlantest = Wlantest()
+    wlantest = Wlantest(MAIN_CONF)
+
     for test in CONF_FILES:
         wlantest.run(test)
+
     wlantest.stop()
     
 if (__name__ == "__main__"):
