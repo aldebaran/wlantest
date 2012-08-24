@@ -1,0 +1,15 @@
+Wlantest is packaged using Python distutils.
+
+* To generate source distribution package
+    python setup.py sdist
+
+* To install from tarball
+    python setup.py install
+
+* In order to run wlantest you need the following
+
+    hostapd >= 1.0 (optionally built with CONFIG_IEEE80211N=y)
+
+    dhcpd (optional)
+
+    freeradius (optional)
