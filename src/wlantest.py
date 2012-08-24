@@ -87,9 +87,9 @@ class Wlantest:
 
         #Output in logfile
         if self.failflag == True:
-            self.resultFile.write('Test ' + self.config['Description']['id_test'] + '\t[Fail]\n')
+            self.resultFile.write(self.config['Description']['id_test'] + '\t[Fail]\n')
         else:
-            self.resultFile.write('Test ' + self.config['Description']['id_test'] + '\t[Ok]\n')
+            self.resultFile.write(self.config['Description']['id_test'] + '\t[Ok]\n')
 
     def clean(self):
         self.connman.clearConfig(self.config['AP']['ssid'])
@@ -288,7 +288,7 @@ def getConfig(test):
     conf['Description']['id_test'] = test[:test.rfind('.')]
 
     # Default values
-    conf['AP'].setdefault('ssid', conf['Description']['id_test'])
+    conf['AP'].setdefault('ssid', conf['Description']['id_test'][:32])
     conf['AP'].setdefault('hidden', 'false')
     conf['AP'].setdefault('channelposition', '')
     conf['AP'].setdefault('identity', '')
