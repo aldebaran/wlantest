@@ -28,6 +28,9 @@ import dbus.mainloop.glib
 import gobject
 
 class Agent(dbus.service.Object):
+    """
+    This class is an agent for ConnMan, mostly based on ConnMan simple-agent.
+    """
     name = None
     ssid = None
     identity = None
@@ -137,7 +140,7 @@ class ConnmanClient:
         self.error = None
         print "Connect callback"
 
-    def autoconnect_timeout_reply(self):
+    def autoconnect_timeout_handler(self):
         loop.quit()
         print "Autoconnect timeout"
 
@@ -166,7 +169,7 @@ class ConnmanClient:
         loop.run()
 
     def autoconnect(self):
-        timeout = gobject.timeout_add(1000*self.autoconnect_timeout, self.autoconnect_timeout_reply)
+        timeout = gobject.timeout_add(1000*self.autoconnect_timeout, self.autoconnect_timeout_handler)
 
         signal = self.bus.add_signal_receiver(property_changed,
             bus_name="net.connman",
@@ -209,11 +212,14 @@ class ConnmanClient:
             if path == "/net/connman/service/" + ServiceId:
                     return properties["State"]
 
-    def getServiceId(self, ServiceName):
+    def getServiceId(self, name, technology, security, mac_address):
         for path,properties in self.manager.GetServices():
-            if properties.get("Name", "hidden") == ServiceName:
-                ServiceId = path[path.rfind("/") + 1:]
-                return ServiceId
+            if properties.get("Name") == name and \
+                    properties.get("Type") == technology and \
+                    security in properties.get("Security") and \
+                    properties.get("Ethernet").get('Address') == mac_address:
+                serviceId = path[path.rfind("/") + 1:]
+                return serviceId
         raise IOError('Service not found !')
 
     def getConnectError(self):
@@ -248,5 +254,5 @@ class ConnmanClient:
             config.write(configfile)
 
 if (__name__ == "__main__"):
-    myConn = ConnmanClient()
-    myConn.autoconnect()
+    myConn = ConnmanClient(90)
+    print myConn.getServiceId(None, 'wifi', 'psk', 'F8:D1:11:C1:76:CD')
