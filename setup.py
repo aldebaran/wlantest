@@ -12,7 +12,6 @@ setup(name='wlantest',
         packages=['wlantest'],
         package_dir={'wlantest': 'src'},
         data_files=[('/etc/wlantest/cfg', glob('cfg/*.cfg')),
-                    ('/etc/wlantest', ['src/main.conf']),
-                    ('/etc/wlantest', ['initscript/dhcpd.conf'])],
+                    ('/etc/wlantest', ['src/main.conf'])],
         scripts=['wlantest']
     )
