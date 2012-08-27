@@ -53,18 +53,18 @@ class Hostapd:
         self.radius_secret = radius_secret
 
         # Set default config to let hostapd start
-        self.setDefaultConfig()
+        self.set_default_config()
 
         self.cmd = ["hostapd", CONF_FILE, "-e", ENTROPY_FILE]
         self.start()
 
-    def setDefaultConfig(self):
+    def set_default_config(self):
         config = HostapdConfig(self.interface)
         config.set("channel", "1")
         config.set("hw_mode", "g")
         config.close()
 
-    def setConfig(self, security, passphrase, identity, mode, channel, channelposition, ssid, hidden):
+    def set_config(self, security, passphrase, identity, mode, channel, channelposition, ssid, hidden):
         config = HostapdConfig(self.interface)
 
         # Radio settings
@@ -158,8 +158,8 @@ class Hostapd:
 if (__name__ == "__main__"):
 
     myhost = Hostapd()
-    myhost.setConfig(security = 'wpa2-psk', \
-                    mode = 'g', \
-                    channel = 4, \
-                    ssid = 'serious_ssid', \
+    myhost.set_config(security = 'wpa2-psk',
+                    mode = 'g',
+                    channel = 4,
+                    ssid = 'serious_ssid',
                     passphrase = '12345678')

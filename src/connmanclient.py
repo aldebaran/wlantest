@@ -117,9 +117,9 @@ class ConnmanClient:
         dbus.mainloop.glib.DBusGMainLoop(set_as_default=True)
 
         self.bus = dbus.SystemBus()
-        self.manager = dbus.Interface(self.bus.get_object("net.connman", "/"), \
+        self.manager = dbus.Interface(self.bus.get_object("net.connman", "/"),
                 "net.connman.Manager")
-        self.technology = dbus.Interface(self.bus.get_object("net.connman", \
+        self.technology = dbus.Interface(self.bus.get_object("net.connman",
                 "/net/connman/technology/wifi"), "net.connman.Technology")
 
         agentpath = "/test/agent"
@@ -207,12 +207,12 @@ class ConnmanClient:
         except dbus.DBusException, error:
             print "%s: %s" % (error._dbus_error_name, error.message)
 
-    def getState(self, ServiceId):
+    def get_state(self, ServiceId):
         for path,properties in self.manager.GetServices():
             if path == "/net/connman/service/" + ServiceId:
                     return properties["State"]
 
-    def getServiceId(self, name, technology, security, mac_address):
+    def get_service_id(self, name, technology, security, mac_address):
         for path,properties in self.manager.GetServices():
             if properties.get("Name") == name and \
                     properties.get("Type") == technology and \
@@ -222,12 +222,12 @@ class ConnmanClient:
                 return serviceId
         raise IOError('Service not found !')
 
-    def getConnectError(self):
+    def get_connect_error(self):
         error = self.error
         self.error = None
         return error
 
-    def setConfig(self, **param):
+    def set_config(self, **param):
         config = ConfigParser.RawConfigParser()
         config.optionxform = str
         config.read(CONF_FILE)
@@ -243,7 +243,7 @@ class ConnmanClient:
         with open(CONF_FILE, 'w') as configfile:
             config.write(configfile)
 
-    def clearConfig(self, name):
+    def clear_config(self, name):
         config = ConfigParser.RawConfigParser()
         config.read(CONF_FILE)
 

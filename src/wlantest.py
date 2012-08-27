@@ -28,7 +28,7 @@ from collections import namedtuple
 
 MAIN_CONF = '/etc/wlantest/main.conf'
 CONF_DIR = '/etc/wlantest/cfg'
-CONF_FILES = os.listdir(CONF_DIR)
+CONF_FILES = sorted(os.listdir(CONF_DIR))
 
 RUN_DIR = '/var/run/wlantest'
 OUTPUT_FILE = '/var/log/wlantest.log'
@@ -36,7 +36,7 @@ OUTPUT_FILE = '/var/log/wlantest.log'
 from connmanclient import ConnmanClient
 from hostapd import Hostapd
 
-wlantest_settings = namedtuple('wlantest_settings', ['sta_iface', 'ap_iface', 'nas_ip', \
+wlantest_settings = namedtuple('wlantest_settings', ['sta_iface', 'ap_iface', 'nas_ip',
         'radius_ip', 'radius_port', 'radius_secret', 'autoconnect_timeout'])
 
 class Wlantest:
@@ -48,7 +48,7 @@ class Wlantest:
         except OSError, e:
             print e
 
-        self.settings = parseMainConfig(config_file)
+        self.settings = parse_main_config(config_file)
 
         self.connman = ConnmanClient(autoconnect_timeout = self.settings.autoconnect_timeout)
         self.hostapd = Hostapd(interface = self.settings.ap_iface,
@@ -63,27 +63,24 @@ class Wlantest:
 
     def run(self, test):
         self.failflag = False
-        self.config = getConfig(test)
+        self.config = get_config(test)
 
         #Configure AP
-        self.hostapd.setConfig(security = self.config['AP']['security'], \
-                            passphrase = self.config['AP']['passphrase'], \
-                            identity = self.config['AP']['identity'], \
-                            mode = self.config['AP']['mode'], \
-                            channel = self.config['AP']['channel'], \
-                            channelposition = self.config['AP']['channelposition'], \
-                            ssid = self.config['AP']['ssid'], \
+        self.hostapd.set_config(security = self.config['AP']['security'],
+                            passphrase = self.config['AP']['passphrase'],
+                            identity = self.config['AP']['identity'],
+                            mode = self.config['AP']['mode'],
+                            channel = self.config['AP']['channel'],
+                            channelposition = self.config['AP']['channelposition'],
+                            ssid = self.config['AP']['ssid'],
                             hidden = self.config['AP']['hidden'])
 
         #Test connectivity
         if 'manual' in self.config['Client']['mode']:
-            self.manualConnect()
+            self.manual_connect()
 
         if 'auto' in self.config['Client']['mode']:
-            self.autoConnect()
-
-        #Cleaning
-        self.clean()
+            self.auto_connect()
 
         #Output in logfile
         if self.failflag == True:
@@ -92,28 +89,34 @@ class Wlantest:
             self.resultFile.write(self.config['Description']['id_test'] + '\t[Ok]\n')
 
     def clean(self):
-        self.connman.clearConfig(self.config['AP']['ssid'])
+        self.connman.clear_config(self.config['AP']['ssid'])
         try:
             if self.config['AP']['security'] == 'open':
-                serviceId = self.connman.getServiceId(name = self.config['AP']['ssid'], \
-                                                      technology = 'wifi', \
+                serviceId = self.connman.get_service_id(name = self.config['AP']['ssid'],
+                                                      technology = 'wifi',
                                                       security = 'none',
                                                       mac_address = self.ap_mac_address)
                 self.connman.remove(serviceId)
-            elif self.config['AP']['security'] in ('wep', 'wpa-psk', 'wpa2-psk'):
-                serviceId = self.connman.getServiceId(name = self.config['AP']['ssid'], \
-                                                      technology = 'wifi', \
+            elif self.config['AP']['security'] == 'wep':
+                serviceId = self.connman.get_service_id(name = self.config['AP']['ssid'],
+                                                      technology = 'wifi',
+                                                      security = 'wep',
+                                                      mac_address = self.ap_mac_address)
+                self.connman.remove(serviceId)
+            elif self.config['AP']['security'] in ('wpa-psk', 'wpa2-psk'):
+                serviceId = self.connman.get_service_id(name = self.config['AP']['ssid'],
+                                                      technology = 'wifi',
                                                       security = 'psk',
                                                       mac_address = self.ap_mac_address)
                 self.connman.remove(serviceId)
         except IOError, e:
             print e
 
-    def manualConnect(self):
+    def manual_connect(self):
         # A minimalist provision must be provided for EAP
         if self.config['AP']['security'] in ('wpa-eap', 'wpa2-eap'):
-            self.connman.setConfig(Name = self.config['AP']['ssid'], \
-                                EAP = self.config['AP']['method'], \
+            self.connman.set_config(Name = self.config['AP']['ssid'],
+                                EAP = self.config['AP']['method'],
                                 Phase2 = self.config['AP']['phase2'])
 
         self.connman.scan()
@@ -126,58 +129,58 @@ class Wlantest:
         #Next steps depends on security
         try:
             if self.config['AP']['security'] == 'open':
-                serviceId = self.connman.getServiceId(name = name, \
-                                                      technology = 'wifi', \
-                                                      security = 'none', \
+                serviceId = self.connman.get_service_id(name = name,
+                                                      technology = 'wifi',
+                                                      security = 'none',
                                                       mac_address = self.ap_mac_address)
-                self.connman.connect(serviceId, \
+                self.connman.connect(serviceId,
                                      name = self.config['AP']['ssid'])
                 sleep(15)
-                serviceId = self.connman.getServiceId(name = self.config['AP']['ssid'], \
-                                                        technology = 'wifi', \
+                serviceId = self.connman.get_service_id(name = self.config['AP']['ssid'],
+                                                        technology = 'wifi',
                                                         security = 'none',
                                                         mac_address = self.ap_mac_address)
 
-            if self.config['AP']['security'] == 'wep':
-                serviceId = self.connman.getServiceId(name = name, \
-                                                      technology = 'wifi', \
-                                                      security = 'wep', \
+            elif self.config['AP']['security'] == 'wep':
+                serviceId = self.connman.get_service_id(name = name,
+                                                      technology = 'wifi',
+                                                      security = 'wep',
                                                       mac_address = self.ap_mac_address)
-                self.connman.connect(serviceId, \
-                                     name = self.config['AP']['ssid'], \
+                self.connman.connect(serviceId,
+                                     name = self.config['AP']['ssid'],
                                      passphrase = self.config['Client']['passphrase'])
                 sleep(15)
-                serviceId = self.connman.getServiceId(name = self.config['AP']['ssid'], \
-                                                        technology = 'wifi', \
+                serviceId = self.connman.get_service_id(name = self.config['AP']['ssid'],
+                                                        technology = 'wifi',
                                                         security = 'wep',
                                                         mac_address = self.ap_mac_address)
 
             elif self.config['AP']['security'] in ('wpa-psk', 'wpa2-psk'):
-                serviceId = self.connman.getServiceId(name = name, \
-                                                      technology = 'wifi', \
-                                                      security = 'psk', \
+                serviceId = self.connman.get_service_id(name = name,
+                                                      technology = 'wifi',
+                                                      security = 'psk',
                                                       mac_address = self.ap_mac_address)
-                self.connman.connect(serviceId, \
-                                     name = self.config['AP']['ssid'], \
+                self.connman.connect(serviceId,
+                                     name = self.config['AP']['ssid'],
                                      passphrase = self.config['Client']['passphrase'])
                 sleep(15)
-                serviceId = self.connman.getServiceId(name = self.config['AP']['ssid'], \
-                                                        technology = 'wifi', \
+                serviceId = self.connman.get_service_id(name = self.config['AP']['ssid'],
+                                                        technology = 'wifi',
                                                         security = 'psk',
                                                         mac_address = self.ap_mac_address)
 
             elif self.config['AP']['security'] in ('wpa-eap', 'wpa2-eap'):
-                serviceId = self.connman.getServiceId(name = name, \
-                                                      technology = 'wifi', \
-                                                      security = 'ieee8021x', \
+                serviceId = self.connman.get_service_id(name = name,
+                                                      technology = 'wifi',
+                                                      security = 'ieee8021x',
                                                       mac_address = self.ap_mac_address)
-                self.connman.connect(serviceId, \
-                                     name = self.config['AP']['ssid'], \
-                                     passphrase = self.config['Client']['passphrase'], \
+                self.connman.connect(serviceId,
+                                     name = self.config['AP']['ssid'],
+                                     passphrase = self.config['Client']['passphrase'],
                                      identity = self.config['Client']['identity'])
                 sleep(15)
-                serviceId = self.connman.getServiceId(name = self.config['AP']['ssid'], \
-                                                        technology = 'wifi', \
+                serviceId = self.connman.get_service_id(name = self.config['AP']['ssid'],
+                                                        technology = 'wifi',
                                                         security = 'ieee8021x',
                                                         mac_address = self.ap_mac_address)
 
@@ -188,7 +191,7 @@ class Wlantest:
             self.test(serviceId, self.config['Result'])
             self.connman.disconnect(serviceId)
 
-    def autoConnect(self):
+    def auto_connect(self):
         # Reloading hostapd to allow the client to connect again
         self.hostapd.kill()
         sleep(15)
@@ -197,44 +200,44 @@ class Wlantest:
         # For WPA-EAP, a full provision must be provided
         if self.config['AP']['security'] in ('wpa-eap', 'wpa2-eap'):
             if self.config['AP']['hidden'] == 'true':
-                self.connman.setConfig(Name = self.config['AP']['ssid'], \
-                                    Hidden = self.config['AP']['hidden'], \
-                                    EAP = self.config['AP']['method'], \
-                                    Phase2 = self.config['AP']['phase2'], \
-                                    Passphrase = self.config['Client']['passphrase'], \
+                self.connman.set_config(Name = self.config['AP']['ssid'],
+                                    Hidden = self.config['AP']['hidden'],
+                                    EAP = self.config['AP']['method'],
+                                    Phase2 = self.config['AP']['phase2'],
+                                    Passphrase = self.config['Client']['passphrase'],
                                     Identity = self.config['Client']['identity'])
             else:
-                self.connman.setConfig(Name = self.config['AP']['ssid'], \
-                                    EAP = self.config['AP']['method'], \
-                                    Phase2 = self.config['AP']['phase2'], \
-                                    Passphrase = self.config['Client']['passphrase'], \
+                self.connman.set_config(Name = self.config['AP']['ssid'],
+                                    EAP = self.config['AP']['method'],
+                                    Phase2 = self.config['AP']['phase2'],
+                                    Passphrase = self.config['Client']['passphrase'],
                                     Identity = self.config['Client']['identity'])
 
         self.connman.autoconnect()
 
         try:
             if self.config['AP']['security'] == 'open':
-                serviceId = self.connman.getServiceId(name = self.config['AP']['ssid'], \
-                                                      technology = 'wifi', \
-                                                      security = 'none', \
+                serviceId = self.connman.get_service_id(name = self.config['AP']['ssid'],
+                                                      technology = 'wifi',
+                                                      security = 'none',
                                                       mac_address = self.ap_mac_address)
 
-            if self.config['AP']['security'] == 'wep':
-                serviceId = self.connman.getServiceId(name = self.config['AP']['ssid'], \
-                                                      technology = 'wifi', \
-                                                      security = 'wep', \
+            elif self.config['AP']['security'] == 'wep':
+                serviceId = self.connman.get_service_id(name = self.config['AP']['ssid'],
+                                                      technology = 'wifi',
+                                                      security = 'wep',
                                                       mac_address = self.ap_mac_address)
 
-            elif self.config['AP']['security'] in ('wep', 'wpa-psk', 'wpa2-psk'):
-                serviceId = self.connman.getServiceId(name = self.config['AP']['ssid'], \
-                                                      technology = 'wifi', \
-                                                      security = 'psk', \
+            elif self.config['AP']['security'] in ('wpa-psk', 'wpa2-psk'):
+                serviceId = self.connman.get_service_id(name = self.config['AP']['ssid'],
+                                                      technology = 'wifi',
+                                                      security = 'psk',
                                                       mac_address = self.ap_mac_address)
 
             elif self.config['AP']['security'] in ('wpa-eap', 'wpa2-eap'):
-                serviceId = self.connman.getServiceId(name = self.config['AP']['ssid'], \
-                                                      technology = 'wifi', \
-                                                      security = 'ieee8021x', \
+                serviceId = self.connman.get_service_id(name = self.config['AP']['ssid'],
+                                                      technology = 'wifi',
+                                                      security = 'ieee8021x',
                                                       mac_address = self.ap_mac_address)
 
         except IOError, e:
@@ -242,11 +245,14 @@ class Wlantest:
            self.failflag = True
         else:
             self.test(serviceId, self.config['Result'])
+
+            #Cleaning
+            self.clean()
             self.connman.disconnect(serviceId)
 
     def test(self, serviceId, Result):
-        if self.connman.getState(serviceId) in Result['state'] \
-                and str(self.connman.getConnectError()) in Result['error']:
+        if self.connman.get_state(serviceId) in Result['state'] \
+                and str(self.connman.get_connect_error()) in Result['error']:
             pass
         else:
             self.failflag = True
@@ -255,7 +261,7 @@ class Wlantest:
         self.hostapd.kill()
         self.resultFile.close()
 
-def loadConfig(configfile):
+def load_config(configfile):
     """
     Method to load a config file into ConfigParser
     """
@@ -263,13 +269,13 @@ def loadConfig(configfile):
     config.read(configfile)
     return config
 
-def getConfig(test):
+def get_config(test):
     """
     Method to parse a wlantest config file into a dictionnary
     """
     conf = {}
 
-    config = loadConfig(CONF_DIR + '/' + test)
+    config = load_config(CONF_DIR + '/' + test)
 
     #Parsing file to dictionary
     for section in config.sections():
@@ -296,11 +302,11 @@ def getConfig(test):
 
     return conf
 
-def parseMainConfig(mainconfig):
+def parse_main_config(mainconfig):
     """
     Method to parse wlantest main config
     """
-    config = loadConfig(mainconfig)
+    config = load_config(mainconfig)
 
     try:
         sta_iface = config.get('general', 'STAInterface')
@@ -358,5 +364,5 @@ def main():
 
     wlantest.stop()
 
-if (__name__ == "__main__"):
+if __name__ == "__main__":
     main()
