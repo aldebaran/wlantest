@@ -1,16 +1,17 @@
-*********
-Abstract
-*********
+Wlantest
+========
+
 Wlantest is an automatic wireless testing script written in Python which aims at checking 
 ConnMan behaviour. (http://connman.net)
 
 For every test, Wlantest runs hostapd on an interface according to a config file and tries
-to connect to it using ConnMan. The result is output in a text file.
+to connect to it using ConnMan. The result is output in /var/log/wlantest.log.
 
 
-***********
 Misc notes
-***********
+----------
+
+* Wlantest must be launched at root
 
 * There are a few parameters in /etc/wlantest/main.conf which have to be set before
 running Wlantest.
@@ -22,9 +23,8 @@ the AP.
 that the dhcpd can listen on it.
 
 
-********************
 Testing environment
-********************
+-------------------
 
 The minimum testing requirement is a machine with two wlan interfaces:
 - An interface used in AP mode on which hostapd is running
@@ -52,15 +52,15 @@ Here is an example of our test environment:
 The script used to setup the above test environnment is supplied FYI in launcher/wlantest.sh
 
 
-****************************************
 Wlantest configuration test file format
-****************************************
+---------------------------------------
 
 Wlantest uses configuration files to load tests. Wlantest will be looking
 for its configuration files in /etc/wlantest/cfg/. They must have a .cfg suffix.
 
-Allowed fields:
-==============
+Allowed fields
+++++++++++++++
+
 A value can either be a single item or coma-separated items.
 
 [Description]
