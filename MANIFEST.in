@@ -1,0 +1,5 @@
+recursive-include launcher *
+include README.rst
+include AUTHORS
+include COPYING
+include INSTALL
