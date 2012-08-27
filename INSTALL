@@ -3,7 +3,7 @@ Wlantest is packaged using Python distutils.
 * To generate source distribution package
     python setup.py sdist
 
-* To install from tarball
+* To install from tarball as root
     python setup.py install
 
 * In order to run wlantest you need the following
