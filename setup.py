@@ -4,7 +4,7 @@ from distutils.core import setup
 from glob import glob
 
 setup(name='wlantest',
-        version='0.1',
+        version='1.0',
         license='GPLv2',
         description='Automatic wireless testing for Connman',
         author='Aldebaran Robotics',
