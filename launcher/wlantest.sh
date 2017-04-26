@@ -16,11 +16,14 @@ modprobe mac80211_hwsim
 iw reg set FR
 
 #Setting up ip parameters
-ifconfig eth0 "${IP_LOCAL}"
-ifconfig wlan1 "${IP_AP}"
+ip link set dev eth0 up
+ip a add dev eth0 "${IP_LOCAL}"
+ip link set dev wlan1 up
+ip a add dev wlan1 "${IP_AP}"
+ip link set dev wlan0 up
 
 #Starting dhcpd
-dhcpd -cf /etc/wlantest/dhcpd.conf
+#dhcpd -cf /etc/wlantest/dhcpd.conf
 
 #Starting Wlantest
 wlantest
