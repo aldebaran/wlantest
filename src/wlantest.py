@@ -115,9 +115,16 @@ class Wlantest:
     def manual_connect(self):
         # A minimalist provision must be provided for EAP
         if self.config['AP']['security'] in ('wpa-eap', 'wpa2-eap'):
-            self.connman.set_config(Name = self.config['AP']['ssid'],
-                                EAP = self.config['AP']['method'],
-                                Phase2 = self.config['AP']['phase2'])
+            cacertfile = self.config['Client']['cacertfile']
+            if cacertfile:
+                self.connman.set_config(Name = self.config['AP']['ssid'],
+                                        EAP = self.config['AP']['method'],
+                                        Phase2 = self.config['AP']['phase2'],
+                                        CACertFile = cacertfile)
+            else:
+                self.connman.set_config(Name = self.config['AP']['ssid'],
+                                        EAP = self.config['AP']['method'],
+                                        Phase2 = self.config['AP']['phase2'])
 
         self.connman.scan()
 
@@ -299,6 +306,7 @@ def get_config(test):
     conf['AP'].setdefault('channelposition', '')
     conf['AP'].setdefault('identity', '')
     conf['AP'].setdefault('passphrase', '')
+    conf['Client'].setdefault('cacertfile', '')
 
     return conf
 
