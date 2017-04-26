@@ -25,5 +25,8 @@ ip link set dev wlan0 up
 #Starting dhcpd
 #dhcpd -cf /etc/wlantest/dhcpd.conf
 
+#Starting freeradius server
+/usr/bin/radiusd -d /etc/raddb
+
 #Starting Wlantest
 wlantest
